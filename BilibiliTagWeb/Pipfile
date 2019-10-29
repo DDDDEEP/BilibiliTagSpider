@@ -1,0 +1,18 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+django = "*"
+djangorestframework = "*"
+django-filter = "*"
+django-debug-toolbar = "*"
+djongo = "*"
+pymongo = "*"
+psycopg2 = "*"
+
+[requires]
+python_version = "3.7"
