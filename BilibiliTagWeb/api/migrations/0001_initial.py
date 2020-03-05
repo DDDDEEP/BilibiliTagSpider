@@ -22,6 +22,7 @@ class Migration(migrations.Migration):
                 ('duration', models.IntegerField()),
                 ('pubdate', models.IntegerField()),
                 ('tags', models.CharField(max_length=128)),
+                ('created_at', models.IntegerField()),
                 ('updated_at', models.IntegerField()),
                 ('stat_view', models.IntegerField()),
                 ('stat_danmaku', models.IntegerField()),

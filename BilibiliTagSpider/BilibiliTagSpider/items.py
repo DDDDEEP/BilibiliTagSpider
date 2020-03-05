@@ -18,6 +18,7 @@ class VideoItem(Item):
     duration = Field()
     pubdate = Field()
     tags = Field()
+    created_at = Field()
     updated_at = Field()
 
     stat_view = Field()

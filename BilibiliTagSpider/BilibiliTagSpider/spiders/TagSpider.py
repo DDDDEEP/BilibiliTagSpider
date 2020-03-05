@@ -91,6 +91,7 @@ class TagSpider(Spider):
                 pubdate_arr = time.strptime(
                     video['pubdate'], "%Y-%m-%d %H:%M:%S")
                 pubdate = int(time.mktime(pubdate_arr))
+                created_time = int(time.time())
                 # TODO:部分stat数据无法获取，之后的开发扩展再补充
                 # 播放量可能为'--'，为方便后续处理，将其清洗为-1
                 item = VideoItem(aid=video['id'],
@@ -98,7 +99,8 @@ class TagSpider(Spider):
                                  title=video['title'],
                                  pubdate=pubdate,
                                  duration=video['duration'],
-                                 updated_at=int(time.time()),
+                                 created_at=created_time,
+                                 updated_at=created_time,
                                  tags=video['tag'],
                                  stat_view=int(stat_to_int(video['play'])),
                                  stat_danmaku=int(stat_to_int(video['video_review'])),
