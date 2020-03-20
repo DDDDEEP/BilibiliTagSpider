@@ -49,7 +49,7 @@ class SpiderProgressLogging(object):
             minutes = total_seconds % 3600 // 60
             seconds = total_seconds % 3600 % 60 
             logger.info(
-                '爬取进度：({}/{})，{:.1f}%，预计剩余时间 {}时{}分{}秒'.format(
+                '总爬取进度：({}/{})，{:.1f}%，预计剩余时间 {}时{}分{}秒'.format(
                     self.items_scraped,
                     spider.items_total,
                     self.items_scraped / spider.items_total * 100,

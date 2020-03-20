@@ -30,20 +30,12 @@ class VideoItem(Item):
     stat_like = Field()
     stat_dislike = Field()
 
-
-class TagItem(Item):
-    collection = 'tags'
-
-    _id = Field()
-    tid = Field()
-    tag_name = Field()
-
-
-class TagVideoItem(Item):
-    collection = 'tag_video'
+class RecordItem(Item):
+    collection = 'records'
 
     _id = Field()
     tid = Field()
     pubdate = Field()
-    tag_id = Field()
-    aid = Field()
+    status = Field()
+    created_at = Field()
+    updated_at = Field()

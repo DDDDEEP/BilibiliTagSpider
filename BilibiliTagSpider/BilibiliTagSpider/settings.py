@@ -106,9 +106,6 @@ MONGO_PWD = 'root'
 
 # 爬虫相关变量
 PER_PAGE = 100  # 列表api的分页量
-TYPE_ID = 17  # 分区id
-TIME_FROM = 20200101  # 被爬取视频的发布日期
-TIME_TO = 20200101
 
 # 日志设置
 LOG_LEVEL = 'INFO'

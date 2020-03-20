@@ -13,6 +13,7 @@ django-debug-toolbar = "*"
 djongo = "*"
 pymongo = "*"
 psycopg2 = "*"
+numpy = "*"
 
 [requires]
 python_version = "3.7"

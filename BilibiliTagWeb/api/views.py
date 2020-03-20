@@ -1,11 +1,14 @@
 from __future__ import unicode_literals
+from BilibiliTagHandler.tag_handler import TagHandler, date_to_timestamp
+from api.models import *
+from api.pagination import CustomPageNumberPagination
+from api.serializers import *
 from django_filters import rest_framework as filters
+from django.http import JsonResponse
+from django.conf import settings
 from rest_framework import viewsets
 from rest_framework.filters import SearchFilter, OrderingFilter
-from api.pagination import CustomPageNumberPagination
 from rest_framework.response import Response
-from api.serializers import *
-from api.models import *
 
 
 class VideoViewSet(viewsets.ModelViewSet):
@@ -32,41 +35,35 @@ class VideoViewSet(viewsets.ModelViewSet):
             request, *args, **kwargs)
         return Response(response_data.data)
 
-    # def get_queryset(self):
-    #     return Videos.objects.all()
+def response_json(data, errmsg):
+    result = {
+        "status": 0,
+        "data": data,
+        "errors": [],
+        "message": "success"
+    }
+    if errmsg != "":
+        result["status"] = 1
+        result["data"] = {}
+        result["message"] = errmsg
+    return result
 
-    # def list(self, request, *args, **kwargs):
-    #     queryset = Videos.objects.all()
-    #     response = {
-    #         'code': 0,
-    #         'data': [],
-    #         'total': ''
-    #     }
-    #     serializer = self.serializer_class(queryset, many=True)
-    #     response['data'] = self.serializer_class.data
-    #     response['total'] = len(serializer.data)
-    #     return Response(response)
+def get_tag_count_rank(request):
+    type_id = int(request.GET.get("tid"))
+    time_from = str(request.GET.get("from"))
+    time_to = str(request.GET.get("to"))
+    count = int(request.GET.get("count"))
+    if not type_id or not time_from or not time_to or not count:
+        return JsonResponse(response_json({}, "缺少参数"))
+    time_from = date_to_timestamp(time_from)
+    time_to = date_to_timestamp(time_to) + 24 * 3600
 
-# TODO: EmbeddedModelField对应的filter，已遗弃
-# from copy import deepcopy
-# from djongo.models import EmbeddedModelField
-# from django.contrib.postgres.forms import SimpleArrayField
-# from django_filters import filterset
-# from django_filters.rest_framework.filters import Filter
-
-
-# class EmbeddedFilter(Filter):
-#     base_field_class = EmbeddedModelField
-
-
-# class PostgresFieldFilterSet(filters.FilterSet):
-#     FILTER_DEFAULTS = deepcopy(filterset.FILTER_FOR_DBFIELD_DEFAULTS)
-#     FILTER_DEFAULTS.update({
-#         EmbeddedModelField: {
-#             'filter_class': EmbeddedFilter,
-#         },
-#     })
-
-
-# class EmbeddedFilterBackend(filters.DjangoFilterBackend):
-#     default_filter_set = PostgresFieldFilterSet
+    mongo_settings = settings.DATABASES['default']
+    handler = TagHandler(mongo_settings['HOST'],
+                    mongo_settings['NAME'],
+                    mongo_settings['USER'],
+                    mongo_settings['PASSWORD'])
+    data = {
+        "result": handler.get_tag_count_rank(type_id, time_from, time_to, count)
+    }
+    return JsonResponse(response_json(data, ""))
