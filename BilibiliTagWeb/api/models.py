@@ -1,7 +1,6 @@
 # Create your models here.
 from djongo import models
 from django import forms
-# import mongoengine
 
 class Videos(models.Model):
     _id = models.ObjectIdField(primary_key=True)
@@ -60,7 +59,7 @@ class VideoTag(models.Model):
     tid = models.IntegerField()
     pubdate = models.IntegerField()
     tag_id = models.BinaryField(max_length=12)
-    aids = models.ArrayModelField(
+    aids = models.ArrayField(
         model_container=AidCollection
     )
 

@@ -55,7 +55,7 @@ class Migration(migrations.Migration):
                 ('tid', models.IntegerField()),
                 ('pubdate', models.IntegerField()),
                 ('tag_id', models.BinaryField(max_length=12)),
-                ('aids', djongo.models.fields.ArrayModelField(model_container=api.models.AidCollection)),
+                ('aids', djongo.models.fields.ArrayField(model_container=api.models.AidCollection)),
             ],
             options={
                 'db_table': 'video_tag',

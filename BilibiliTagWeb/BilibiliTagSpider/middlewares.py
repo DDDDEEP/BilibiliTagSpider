@@ -107,8 +107,7 @@ class BilibilitagspiderDownloaderMiddleware(object):
 
 
 class ProxyMiddleware():
-    # 代理池中间件
-
+    """代理池中间件"""
     def __init__(self, proxy_url):
         self.logger = logging.getLogger(__name__)
         self.proxy_url = proxy_url
@@ -137,8 +136,7 @@ class ProxyMiddleware():
 
 
 class RandomUserAgentMiddlware(object):
-    # 用户代理中间件
-
+    """用户代理中间件"""
     def __init__(self, crawler):
         super(RandomUserAgentMiddlware, self).__init__()
         self.ua = UserAgent()

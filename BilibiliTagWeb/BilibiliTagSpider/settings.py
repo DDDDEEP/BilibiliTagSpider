@@ -57,9 +57,9 @@ DEFAULT_REQUEST_HEADERS = {
 # Enable or disable downloader middlewares
 # See https://doc.scrapy.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
+    'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
     # 'BilibiliTagSpider.middlewares.BilibilitagspiderDownloaderMiddleware': 543,
     'BilibiliTagSpider.middlewares.RandomUserAgentMiddlware': 543,
-    'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
     # 'BilibiliTagSpider.middlewares.ProxyMiddleware': 555,
 }
 # Enable or disable extensions
@@ -67,6 +67,7 @@ DOWNLOADER_MIDDLEWARES = {
 MYEXT_ENABLED = True
 EXTENSIONS = {
     'scrapy.extensions.logstats.LogStats': None,
+    # 'BilibiliTagSpider.extensions.DumpStatsExtension': 100,
     'BilibiliTagSpider.extensions.SpiderProgressLogging': 500,
 }
 
@@ -109,7 +110,8 @@ PER_PAGE = 100  # 列表api的分页量
 
 # 日志设置
 LOG_LEVEL = 'INFO'
-LOG_STDOUT = True
+LOG_STDOUT = True # 使用Scrapyd时需要关闭该选项
+# DUMP_STATS_INTERVAL = 5.0 # 将Stats写入日志的间隔时间
 
 # 本地获取代理的地址
 PROXY_URL = '127.0.0.1:5555/random'

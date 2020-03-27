@@ -6,14 +6,20 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
+celery = "*"
+celery-once = "*"
 django = "*"
 djangorestframework = "*"
 django-filter = "*"
 django-debug-toolbar = "*"
-djongo = "*"
+djongo = "==1.3.0"
+fake-useragent = "*"
+numpy = "*"
 pymongo = "*"
 psycopg2 = "*"
-numpy = "*"
+redis = "*"
+requests = "*"
+scrapy = "*"
 
 [requires]
 python_version = "3.7"

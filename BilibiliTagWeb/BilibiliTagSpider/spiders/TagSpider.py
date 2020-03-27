@@ -1,10 +1,9 @@
 import json
 import logging
 import math
-import requests
 
-from BilibiliTagSpider.helpers import *
-from BilibiliTagSpider.items import *
+from helpers import *
+from ..items import *
 from scrapy import Request, Spider
 from scrapy.utils.project import get_project_settings
 
@@ -44,8 +43,8 @@ class TagSpider(Spider):
                     time_to = self.TIME_FROM
                 ),
                 meta = {
-                    "time_cur": self.TIME_FROM,
-                    "time_from_equal_to": True
+                    'time_cur': self.TIME_FROM,
+                    'time_from_equal_to': True
                 },
                 callback = self.parse_hotlist_one_day,
                 errback = self.errback_common
@@ -69,14 +68,14 @@ class TagSpider(Spider):
         """
         self.logger.info("parse_hotlist_init，得到回应：{}".format(response.url))
         result = json.loads(response.text)
-        if "numResults" in result and result["numResults"] >= 0:
-            self.items_total = result["numResults"]
+        if 'numResults' in result and result['numResults'] >= 0:
+            self.items_total = result['numResults']
             self.logger.info(
                 "[分区号{type_id}，{time_from}-{time_to}]的总视频数为{total}".format(
                     type_id = self.TYPE_ID,
                     time_from = self.TIME_FROM,
                     time_to = self.TIME_TO,
-                    total = result["numResults"],
+                    total = result['numResults'],
                 )
             )
             
@@ -94,7 +93,7 @@ class TagSpider(Spider):
                         time_from = time_cur,
                         time_to = time_cur
                     ),
-                    meta = {"time_cur": time_cur},
+                    meta = {'time_cur': time_cur},
                     callback = self.parse_hotlist_one_day,
                     errback = self.errback_common
                 )
@@ -108,26 +107,35 @@ class TagSpider(Spider):
         """
         self.logger.info("parse_hotlist_one_day，得到回应：{}".format(response.url))
         result = json.loads(response.text)
-        if "numResults" in result and result["numResults"] >= 0:
-            time_cur = response.meta["time_cur"]
-            day_total_page = math.ceil(result["numResults"] / self.settings["PER_PAGE"])
+        if 'numResults' in result and result['numResults'] >= 0:
+            time_cur = response.meta['time_cur']
+            day_total_page = math.ceil(result['numResults'] / self.settings['PER_PAGE'])
             self.parse_items_total[time_cur] = {
-                "cur": 0,
-                "total": result["numResults"]
+                'cur': 0,
+                'total': result['numResults']
             }
+
+            if 'time_from_equal_to' in response.meta and response.meta['time_from_equal_to']:
+                self.logger.info(
+                    "[分区号{type_id}，{time_from}-{time_to}]的总视频数为{total}".format(
+                        type_id = self.TYPE_ID,
+                        time_from = self.TIME_FROM,
+                        time_to = self.TIME_TO,
+                        total = result['numResults'],
+                    )
+                )
+                self.items_total = result['numResults']
+
             self.logger.info(
                 "[分区号{type_id}，{time_cur}]的视频数为{total}，分页为每页{per_page}个，共{total_page}页，请求延迟为{delay}s".format(
                     type_id = self.TYPE_ID,
                     time_cur = time_cur,
-                    total = result["numResults"],
-                    per_page = self.settings["PER_PAGE"],
+                    total = result['numResults'],
+                    per_page = self.settings['PER_PAGE'],
                     total_page = day_total_page,
-                    delay = self.settings["DOWNLOAD_DELAY"],
+                    delay = self.settings['DOWNLOAD_DELAY'],
                 )
             )
-
-            if "time_from_equal_to" in response.meta and response.meta["time_from_equal_to"]:
-                self.items_total = result["numResults"]
 
             # 依次请求对应各页号的数据
             cur_page = 1
@@ -136,12 +144,12 @@ class TagSpider(Spider):
                     self.hotlist_url.format(
                         type_id = self.TYPE_ID,
                         page = cur_page,
-                        per_page = self.settings["PER_PAGE"],
-                        time_from = response.meta["time_cur"],
-                        time_to = response.meta["time_cur"],
+                        per_page = self.settings['PER_PAGE'],
+                        time_from = response.meta['time_cur'],
+                        time_to = response.meta['time_cur'],
                     ),
                     meta = {
-                        "time_cur": time_cur,
+                        'time_cur': time_cur,
                     },
                     callback = self.parse_hotlist_one_day_page,
                     errback = self.errback_common
@@ -156,40 +164,40 @@ class TagSpider(Spider):
         """
         self.logger.info("parse_hotlist_one_day_page，得到回应：{}".format(response.url))
         result = json.loads(response.text)
-        if "result" in result and "numPages" in result:
-            time_cur = response.meta["time_cur"]
-            for video in result["result"]:
-                pubdate_arr = time.strptime(video["pubdate"], "%Y-%m-%d %H:%M:%S")
+        if 'result' in result and 'numPages' in result:
+            time_cur = response.meta['time_cur']
+            for video in result['result']:
+                pubdate_arr = time.strptime(video['pubdate'], '%Y-%m-%d %H:%M:%S')
                 pubdate = int(time.mktime(pubdate_arr))
                 created_time = int(time.time())
                 # TODO:部分stat数据需用另外的接口获取，之后的开发扩展再补充
                 item = VideoItem(
-                    aid = video["id"],
+                    aid = video['id'],
                     tid = self.TYPE_ID,
-                    title = video["title"],
+                    title = video['title'],
                     pubdate = pubdate,
-                    duration = video["duration"],
+                    duration = video['duration'],
                     created_at = created_time,
                     updated_at = created_time,
-                    tags = video["tag"],
-                    stat_view = stat_to_int(video["play"]),
-                    stat_danmaku = stat_to_int(video["video_review"]),
-                    stat_reply = stat_to_int(video["review"]),
-                    stat_favorite = stat_to_int(video["favorites"]),
+                    tags = video['tag'],
+                    stat_view = stat_to_int(video['play']),
+                    stat_danmaku = stat_to_int(video['video_review']),
+                    stat_reply = stat_to_int(video['review']),
+                    stat_favorite = stat_to_int(video['favorites']),
                     stat_coin = 0,
                     stat_share = 0,
                     stat_like = 0,
                     stat_dislike = 0,
                 )
                 yield item
-                self.parse_items_total[time_cur]["cur"] += 1
+                self.parse_items_total[time_cur]['cur'] += 1
 
             # 记录该日爬取已完成
-            if self.parse_items_total[time_cur]["cur"] == self.parse_items_total[time_cur]["total"]:
+            if self.parse_items_total[time_cur]['cur'] == self.parse_items_total[time_cur]['total']:
                 item = RecordItem(
                     tid = self.TYPE_ID,
-                    pubdate = date_to_timestamp(response.meta["time_cur"]),
-                    status = 0
+                    pubdate = date_to_timestamp(response.meta['time_cur']),
+                    status = RecordStatus.Crawled.value
                 )
                 yield item
                 self.logger.info(
@@ -201,39 +209,6 @@ class TagSpider(Spider):
         else:
             self.logger.error("parse_hotlist_one_day_page，热榜列表解析失败：{}".format(response.url))
 
-    def parse_newlist(self, response):
-        """
-        在时间排序API中解析视频数据
-        """
-        result = json.loads(response.text)
-        if "data" in result and "archives" in result["data"]:
-            for video in result["data"]["archives"]:
-                item = VideoItem(
-                    aid = video["aid"],
-                    tid = video["tid"],
-                    title = video["title"],
-                    pubdate = video["pubdate"],
-                    duration = video["duration"],
-                    updated_at = int(time.time()),
-                    stat_view = stat_to_int(video["stat"]["view"]),
-                    stat_danmaku = stat_to_int(video["stat"]["danmaku"]),
-                    stat_reply = video["stat"]["reply"],
-                    stat_favorite = video["stat"]["favorite"],
-                    stat_coin = video["stat"]["coin"],
-                    stat_share = video["stat"]["share"],
-                    stat_like = video["stat"]["like"],
-                    stat_dislike = video["stat"]["dislike"],
-                )
-
-                yield Request(
-                    self.video_url.format(aid=video["aid"]),
-                    meta = {"item": item},
-                    callback = self.parse_tag_from_videopage,
-                    errback = self.errback_common
-                )
-        else:
-            self.logger.error("视频投稿列表解析失败：{}".format(response.url))
-
     def parse_tag_from_videopage(self, response):
         """
         在视频主页中解析标签
@@ -244,8 +219,8 @@ class TagSpider(Spider):
             self.logger.error("视频主页解析标签失败：{}".format(response.url))
         else:
             tags = tags.extract()
-            item = response.meta["item"]
-            item["tags"] = ",".join(tags)
+            item = response.meta['item']
+            item['tags'] = ','.join(tags)
             yield item
 
     def errback_common(self, failure):

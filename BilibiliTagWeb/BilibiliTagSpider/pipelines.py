@@ -23,10 +23,10 @@ class MongoPipeline(object):
 
     @classmethod
     def from_crawler(cls, crawler):
-        return cls(mongo_uri=crawler.settings.get("MONGO_URI"),
-                   mongo_db=crawler.settings.get("MONGO_DB"),
-                   mongo_usr=crawler.settings.get("MONGO_USR"),
-                   mongo_pwd=crawler.settings.get("MONGO_PWD"),
+        return cls(mongo_uri=crawler.settings.get('MONGO_URI'),
+                   mongo_db=crawler.settings.get('MONGO_DB'),
+                   mongo_usr=crawler.settings.get('MONGO_USR'),
+                   mongo_pwd=crawler.settings.get('MONGO_PWD'),
                    )
 
     def open_spider(self, spider):
@@ -41,28 +41,28 @@ class MongoPipeline(object):
         if isinstance(item, VideoItem):
             self.db[item.collection].update_one(
                 {
-                    "aid": item["aid"],
+                    'aid': item['aid'],
                 },
                 {
-                    "$setOnInsert": {
-                        "created_at": item["created_at"],
-                        "tid": item["tid"],
-                        "pubdate": item["pubdate"],
-                        "aid": item["aid"],
-                        "tags": item["tags"],
+                    '$setOnInsert': {
+                        'created_at': item['created_at'],
+                        'tid': item['tid'],
+                        'pubdate': item['pubdate'],
+                        'aid': item['aid'],
+                        'tags': item['tags'],
                     },
-                    "$set": {
-                        "updated_at": item["updated_at"],
-                        "title": item["title"],
-                        "duration": item["duration"],
-                        "stat_view": item["stat_view"],
-                        "stat_danmaku": item["stat_danmaku"],
-                        "stat_reply": item["stat_reply"],
-                        "stat_favorite": item["stat_favorite"],
-                        "stat_coin": item["stat_coin"],
-                        "stat_share": item["stat_share"],
-                        "stat_like": item["stat_like"],
-                        "stat_dislike": item["stat_dislike"],
+                    '$set': {
+                        'updated_at': item['updated_at'],
+                        'title': item['title'],
+                        'duration': item['duration'],
+                        'stat_view': item['stat_view'],
+                        'stat_danmaku': item['stat_danmaku'],
+                        'stat_reply': item['stat_reply'],
+                        'stat_favorite': item['stat_favorite'],
+                        'stat_coin': item['stat_coin'],
+                        'stat_share': item['stat_share'],
+                        'stat_like': item['stat_like'],
+                        'stat_dislike': item['stat_dislike'],
                     }
                 },
                 upsert = True
@@ -71,12 +71,12 @@ class MongoPipeline(object):
         elif isinstance(item, RecordItem):
             self.db[item.collection].update_one(
                 {
-                    "tid": item["tid"],
-                    "pubdate": item["pubdate"],
+                    'tid': item['tid'],
+                    'pubdate': item['pubdate'],
                 },
                 {
-                    "$set": {
-                        "status": item["status"],
+                    '$set': {
+                        'status': item['status'],
                     }
                 },
                 upsert = True
