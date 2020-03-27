@@ -13,4 +13,5 @@ urlpatterns = [
     path('task/handler_progress', task_views.get_handler_progress, name="task.handler_progress"),
     path('task/spider_start', task_views.start_spider, name="task.spider_start"),
     path('task/spider_progress', task_views.get_spider_progress, name="task.spider_progress"),
+    path('task/running_list', task_views.get_running_list, name="task.running_list"),
 ]
