@@ -7,10 +7,11 @@ from scrapy.exceptions import NotConfigured
 from scrapy.utils.project import get_project_settings
 from twisted.internet.task import LoopingCall
 
-from helpers import SCRAPY_STAT_VIDEO_CUR, SCRAPY_STAT_VIDEO_TOTAL
-from .items import RecordItem, VideoItem
+from helpers import ScrapyField
+from .items import VideoItem
 
 logger = logging.getLogger(__name__)
+
 
 class SpiderProgressLogging(object):
     """
@@ -28,12 +29,14 @@ class SpiderProgressLogging(object):
             raise NotConfigured
 
         # instantiate the extension object
-        ext = cls(crawler.stats) # 使extension可以访问stat
+        ext = cls(crawler.stats)  # 使extension可以访问stat
 
         # connect the extension object to signals
-        crawler.signals.connect(ext.spider_opened, signal = signals.spider_opened)
-        crawler.signals.connect(ext.spider_closed, signal = signals.spider_closed)
-        crawler.signals.connect(ext.item_scraped, signal = signals.item_scraped)
+        crawler.signals.connect(ext.spider_opened,
+                                signal=signals.spider_opened)
+        crawler.signals.connect(ext.spider_closed,
+                                signal=signals.spider_closed)
+        crawler.signals.connect(ext.item_scraped, signal=signals.item_scraped)
 
         # return the extension object
         return ext
@@ -45,36 +48,36 @@ class SpiderProgressLogging(object):
         logger.info("爬虫关闭：{}".format(spider.name))
 
     def item_scraped(self, item, spider):
-        SCRAPY_STAT_VIDEO_TOTAL = 'video_item_total'
         if isinstance(item, VideoItem):
-            self.stats.inc_value(SCRAPY_STAT_VIDEO_CUR)
-            self.stats.set_value(SCRAPY_STAT_VIDEO_TOTAL, spider.items_total)
-            
-            items_scraped = self.stats.get_value(SCRAPY_STAT_VIDEO_CUR)
+            self.stats.inc_value(ScrapyField.VideoCur.value)
+            self.stats.set_value(ScrapyField.VideoTotal.value, spider.items_total)
+
+            items_scraped = self.stats.get_value(ScrapyField.VideoCur.value)
             if items_scraped % 500 == 0:
-                total_seconds = math.ceil((spider.items_total - items_scraped) /
-                                    self.settings['PER_PAGE']) * self.settings['DOWNLOAD_DELAY']
+                total_seconds = math.ceil(
+                    (spider.items_total - items_scraped) / self.
+                    settings['PER_PAGE']) * self.settings['DOWNLOAD_DELAY']
                 hours = total_seconds // 3600
                 minutes = total_seconds % 3600 // 60
-                seconds = total_seconds % 3600 % 60 
-                logger.info(
-                    "总爬取进度：({}/{})，{:.1f}%，预计剩余时间 {}时{}分{}秒".format(
-                        items_scraped,
-                        spider.items_total,
-                        items_scraped / spider.items_total * 100,
-                        hours,
-                        minutes,
-                        seconds,
-                    )
-                )
+                seconds = total_seconds % 3600 % 60
+                logger.info("总爬取进度：({}/{})，{:.1f}%，预计剩余时间 {}时{}分{}秒".format(
+                    items_scraped,
+                    spider.items_total,
+                    items_scraped / spider.items_total * 100,
+                    hours,
+                    minutes,
+                    seconds,
+                ))
+
 
 class _LoopingExtension:
-
     def setup_looping_task(self, task, crawler, interval):
         self._interval = interval
         self._task = LoopingCall(task)
-        crawler.signals.connect(self.spider_opened, signal=signals.spider_opened)
-        crawler.signals.connect(self.spider_closed, signal=signals.spider_closed)
+        crawler.signals.connect(self.spider_opened,
+                                signal=signals.spider_opened)
+        crawler.signals.connect(self.spider_closed,
+                                signal=signals.spider_closed)
 
     def spider_opened(self):
         self._task.start(self._interval, now=False)
@@ -82,6 +85,7 @@ class _LoopingExtension:
     def spider_closed(self):
         if self._task.running:
             self._task.stop()
+
 
 class DumpStatsExtension(_LoopingExtension):
     """

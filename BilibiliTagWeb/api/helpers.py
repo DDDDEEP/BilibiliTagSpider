@@ -1,5 +1,5 @@
 
-def response_json(data, errmsg):
+def response_json(data={}, errmsg=''):
     result = {
         'status': 0,
         'data': data,
@@ -12,8 +12,9 @@ def response_json(data, errmsg):
         result['message'] = errmsg
     return result
 
+
 def check_dict_required_param(dict, params):
     for param in params:
-        if not dict.get(param):
+        if dict.get(param) is None:
             return False
     return True

@@ -48,7 +48,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -179,7 +179,8 @@ INTERNAL_IPS = [
 
 # Celery 设置
 REDIS_PASSWORD = 'root'
-CELERY_BROKER_URL = "redis://:{password}@localhost:6379/0".format(password = REDIS_PASSWORD)
+CELERY_BROKER_URL = "redis://:{password}@localhost:6379/0".format(password=REDIS_PASSWORD)
+CELERY_WORKER_MAX_TASKS_PER_CHILD = 1  # 避免Scrapy的ReactorAlreadyRunning报错
 CELERY_RESULT_BACKEND = CELERY_BROKER_URL
 CELERY_ACCEPT_CONTENT = ['application/json', ]
 CELERY_TASK_SERIALIZER = 'json'
