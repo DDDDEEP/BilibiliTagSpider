@@ -1,38 +1,32 @@
 import request from 'umi-request';
-import { TableListParams } from './data.d';
+import { TableListParams, TaskStartParams, RecordListParams } from './data.d';
 
-export async function queryRule(params?: TableListParams) {
-  return request('/api/rule', {
+export async function getTaskList(params?: TableListParams) {
+  return request('/api/task/task_list', {
     params,
+    method: 'GET',
   });
 }
 
-export async function removeRule(params: { key: number[] }) {
-  return request('/api/rule', {
+export async function startSpider(params?: TaskStartParams) {
+  return request('/api/task/start_spider', {
+    data: params,
     method: 'POST',
-    data: {
-      ...params,
-      method: 'delete',
-    },
+    requestType: 'form',
   });
 }
 
-export async function addRule(params: TableListParams) {
-  return request('/api/rule', {
+export async function startHandler(params?: TaskStartParams) {
+  return request('/api/task/start_handler', {
+    data: params,
     method: 'POST',
-    data: {
-      ...params,
-      method: 'post',
-    },
+    requestType: 'form',
   });
 }
 
-export async function updateRule(params: TableListParams) {
-  return request('/api/rule', {
-    method: 'POST',
-    data: {
-      ...params,
-      method: 'update',
-    },
+export async function getReocrdList(params?: RecordListParams) {
+  return request('/api/record', {
+    params,
+    method: 'GET',
   });
 }

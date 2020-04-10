@@ -1,15 +1,27 @@
+import moment from 'moment';
 import React from 'react';
-import { Form, Input, Modal } from 'antd';
+import { Form, Input, Modal, Select, DatePicker } from 'antd';
 
+import { TaskTableListItem } from '../data.d';
+import { TASK_TYPE_NAME, TYPE_ID_NAME } from '@/utils/utils';
+
+const { Option } = Select;
 const FormItem = Form.Item;
+const { RangePicker } = DatePicker;
+
+export interface FormValueType {
+  task_type?: number;
+  tid?: number;
+  time?: moment.Moment[];
+}
 
 interface CreateFormProps {
   modalVisible: boolean;
-  onSubmit: (fieldsValue: { desc: string }) => void;
+  onSubmit: (values: FormValueType) => void;
   onCancel: () => void;
 }
 
-const CreateForm: React.FC<CreateFormProps> = props => {
+const CreateForm: React.FC<CreateFormProps> = (props) => {
   const [form] = Form.useForm();
 
   const { modalVisible, onSubmit: handleAdd, onCancel } = props;
@@ -21,20 +33,40 @@ const CreateForm: React.FC<CreateFormProps> = props => {
   return (
     <Modal
       destroyOnClose
-      title="新建规则"
+      title="新建任务"
       visible={modalVisible}
       onOk={okHandle}
       onCancel={() => onCancel()}
     >
       <Form form={form}>
         <FormItem
-          labelCol={{ span: 5 }}
-          wrapperCol={{ span: 15 }}
-          label="描述"
-          name="desc"
-          rules={[{ required: true, message: '请输入至少五个字符的规则描述！', min: 5 }]}
+          name="task_type"
+          label="类型"
+          rules={[{ required: true, message: '请选择任务类型' }]}
         >
-          <Input placeholder="请输入" />
+          <Select placeholder="请选择任务类型">
+            {Object.keys(TASK_TYPE_NAME).map((key: string) => {
+              return <Option key={key} value={key}>{TASK_TYPE_NAME[key]}</Option>;
+            })}
+          </Select>
+        </FormItem>
+        <FormItem name="tid" label="分区" rules={[{ required: true, message: '请选择分区' }]}>
+          <Select placeholder="请选择分区">
+            {Object.keys(TYPE_ID_NAME).map((key: string) => {
+              return (
+                <Option key={key} value={key}>
+                  {key}: {TYPE_ID_NAME[key]}
+                </Option>
+              );
+            })}
+          </Select>
+        </FormItem>
+        <FormItem
+          name="time"
+          label="时间"
+          rules={[{ required: true, message: '请选择时间范围' }]}
+        >
+          <RangePicker />
         </FormItem>
       </Form>
     </Modal>

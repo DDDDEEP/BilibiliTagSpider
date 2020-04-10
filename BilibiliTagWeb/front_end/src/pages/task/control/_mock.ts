@@ -1,33 +1,56 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
+import moment from 'moment';
 import { Request, Response } from 'express';
 import { parse } from 'url';
-import { TableListItem, TableListParams } from './data.d';
+import { TaskTableListItem, TableListParams, RecordListItem, RecordListParams } from './data.d';
+// import { monthFixZero } from '@/utils/utils';
+
+const monthFixZero = (month: number) => {
+  return month.toString().padStart(2, '0');
+}
 
 // mock tableListDataSource
-let tableListDataSource: TableListItem[] = [];
+let tableListDataSource: TaskTableListItem[] = [];
 
-for (let i = 0; i < 10; i += 1) {
+for (let i = 0; i < 8; i += 1) {
+  const randomTimeStart: number = Math.round(Math.random() * 10000000000);
+  const progressCur: number = Math.round(Math.random() * 1000000);
   tableListDataSource.push({
-    key: i,
-    disabled: i % 6 === 0,
-    href: 'https://ant.design',
-    avatar: [
-      'https://gw.alipayobjects.com/zos/rmsportal/eeHMaZBwmTvLdIwMfBpg.png',
-      'https://gw.alipayobjects.com/zos/rmsportal/udxAbMEhpwthVVcjLXik.png',
-    ][i % 2],
-    name: `TradeCode ${i}`,
-    title: `一个任务名称 ${i}`,
-    owner: '曲丽丽',
-    desc: '这是一段描述',
-    callNo: Math.floor(Math.random() * 1000),
-    status: Math.floor(Math.random() * 10) % 4,
-    updatedAt: new Date(`2017-07-${Math.floor(i / 2) + 1}`),
-    createdAt: new Date(`2017-07-${Math.floor(i / 2) + 1}`),
-    progress: Math.ceil(Math.random() * 100),
+    task_id: Math.random().toString(36).substr(2),
+    task_type: i % 2,
+    tid: 17,
+    time_from: 20150101,
+    time_to: 20161231,
+    time_start: randomTimeStart,
+    time_end: (i % 2 ? -1 : randomTimeStart + 10000000),
+    state: ['PENDING', 'STARTED', 'PROGRESS', 'SUCCESS', 'ERROR'][i % 5] as
+      | 'PENDING' 
+      | 'STARTED' 
+      | 'PROGRESS' 
+      | 'SUCCESS'
+      | 'ERROR',
+    progress: i % 2 ? [
+      {
+        cur: progressCur,
+        total: progressCur + 100000,
+      },
+      {
+        cur: progressCur,
+        total: progressCur + 100000,
+      },
+    ] : [
+      {
+        cur: progressCur,
+        total: progressCur + 100000,
+      },
+    ],
+    extra: i % 2 ? {} : { status: Math.round(Math.random() * 100) % 5 },
   });
 }
 
-function getRule(req: Request, res: Response, u: string) {
+function getTaskList(req: Request, res: Response, u: string) {
+  let dataSource = tableListDataSource;
+
   let url = u;
   if (!url || Object.prototype.toString.call(url) !== '[object String]') {
     // eslint-disable-next-line prefer-destructuring
@@ -36,112 +59,82 @@ function getRule(req: Request, res: Response, u: string) {
 
   const params = (parse(url, true).query as unknown) as TableListParams;
 
-  let dataSource = tableListDataSource;
-
-  if (params.sorter) {
-    const s = params.sorter.split('_');
-    dataSource = dataSource.sort((prev, next) => {
-      if (s[1] === 'descend') {
-        return next[s[0]] - prev[s[0]];
-      }
-      return prev[s[0]] - next[s[0]];
-    });
-  }
-
-  if (params.status) {
-    const status = params.status.split(',');
-    let filterDataSource: TableListItem[] = [];
-    status.forEach((s: string) => {
-      filterDataSource = filterDataSource.concat(
-        dataSource.filter(item => {
-          if (parseInt(`${item.status}`, 10) === parseInt(s.split('')[0], 10)) {
-            return true;
-          }
-          return false;
-        }),
-      );
-    });
-    dataSource = filterDataSource;
-  }
-
-  if (params.name) {
-    dataSource = dataSource.filter(data => data.name.includes(params.name || ''));
-  }
-
-  let pageSize = 10;
-  if (params.pageSize) {
-    pageSize = parseInt(`${params.pageSize}`, 0);
-  }
-
+  const startIndex:number = (params.pageIndex - 1) * params.pageSize
+  const endIndex:number = startIndex + params.pageSize
   const result = {
-    data: dataSource,
-    total: dataSource.length,
-    success: true,
-    pageSize,
-    current: parseInt(`${params.currentPage}`, 10) || 1,
+    status: 0,
+    data: {
+      results: dataSource.slice(startIndex, endIndex),
+      count: dataSource.length,
+    },
+    errors: [],
+    message: 'success'
   };
 
   return res.json(result);
 }
 
-function postRule(req: Request, res: Response, u: string, b: Request) {
+function startSpider(req: Request, res: Response, u: string, b: Request) {
+  const result = {
+    status: 0,
+    data: {
+    },
+    errors: [],
+    message: 'success'
+  };
+
+  return res.json(result);
+}
+
+function startHandler(req: Request, res: Response, u: string, b: Request) {
+  const result = {
+    status: 0,
+    data: {
+    },
+    errors: [],
+    message: 'success'
+  };
+
+  return res.json(result);
+}
+
+function getRecordList(req: Request, res: Response, u: string) {
   let url = u;
   if (!url || Object.prototype.toString.call(url) !== '[object String]') {
     // eslint-disable-next-line prefer-destructuring
     url = req.url;
   }
 
-  const body = (b && b.body) || req.body;
-  const { method, name, desc, key } = body;
+  const params = (parse(url, true).query as unknown) as RecordListParams;
 
-  switch (method) {
-    /* eslint no-case-declarations:0 */
-    case 'delete':
-      tableListDataSource = tableListDataSource.filter(item => key.indexOf(item.key) === -1);
-      break;
-    case 'post':
-      const i = Math.ceil(Math.random() * 10000);
-      tableListDataSource.unshift({
-        key: i,
-        href: 'https://ant.design',
-        avatar: [
-          'https://gw.alipayobjects.com/zos/rmsportal/eeHMaZBwmTvLdIwMfBpg.png',
-          'https://gw.alipayobjects.com/zos/rmsportal/udxAbMEhpwthVVcjLXik.png',
-        ][i % 2],
-        name: `TradeCode ${i}`,
-        title: `一个任务名称 ${i}`,
-        owner: '曲丽丽',
-        desc,
-        callNo: Math.floor(Math.random() * 1000),
-        status: Math.floor(Math.random() * 10) % 2,
-        updatedAt: new Date(),
-        createdAt: new Date(),
-        progress: Math.ceil(Math.random() * 100),
-      });
-      break;
-    case 'update':
-      tableListDataSource = tableListDataSource.map(item => {
-        if (item.key === key) {
-          return { ...item, desc, name };
-        }
-        return item;
-      });
-      break;
-    default:
-      break;
+  let dataSource: RecordListItem[] = [];
+  const year = moment(params.pubdate_min * 1000).year();
+  for (let monthIndex = 1; monthIndex < 6; ++monthIndex) {
+    for (let dayIndex = 7; dayIndex < 20; ++dayIndex) {
+      dataSource.push({
+        tid: params.tid,
+        pubdate: Math.floor(moment(`${year}-${monthFixZero(monthIndex)}-${monthFixZero(dayIndex)}`).valueOf() / 1000),
+        status: dayIndex % 3,
+      })
+    }
   }
 
   const result = {
-    list: tableListDataSource,
-    pagination: {
-      total: tableListDataSource.length,
+    status: 0,
+    data: {
+      results: dataSource,
+      count: dataSource.length,
     },
+    errors: [],
+    message: 'success'
   };
 
   return res.json(result);
 }
 
 export default {
-  'GET /api/rule': getRule,
-  'POST /api/rule': postRule,
+  'GET /api/task/task_list': getTaskList,
+  'POST /api/task/start_spider': startSpider,
+  'POST /api/task/start_handler': startHandler,
+  'GET /api/record': getRecordList,
 };

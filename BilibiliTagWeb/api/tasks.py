@@ -52,7 +52,7 @@ def task_handler(self, type_id, time_from, time_to):
         time.sleep(1)
         if not thread_handler.is_alive():
             break
-
+    
     task_ended(self.request.id)
     return {
         HandlerField.Status.value: thread_handler.get_return(),

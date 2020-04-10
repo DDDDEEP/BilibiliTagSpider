@@ -3,10 +3,8 @@ import { Button, Divider, Dropdown, Menu, message } from 'antd';
 import React, { useState, useRef } from 'react';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import ProTable, { ProColumns, ActionType } from '@ant-design/pro-table';
-import CreateForm from './components/CreateForm';
-import UpdateForm, { FormValueType } from './components/UpdateForm';
-import { TableListItem } from './data.d';
-import { queryRule, updateRule, addRule, removeRule } from './service';
+import { VideoTableListItem } from './data.d';
+import { getVideoList } from './service';
 
 /**
  * 添加节点
@@ -131,82 +129,58 @@ const TableList: React.FC<{}> = () => {
 
   return (
     <PageHeaderWrapper>
-      <ProTable<TableListItem>
-        headerTitle="查询表格"
-        actionRef={actionRef}
-        rowKey="key"
-        toolBarRender={(action, { selectedRows }) => [
-          <Button icon={<PlusOutlined />} type="primary" onClick={() => handleModalVisible(true)}>
-            新建
-          </Button>,
-          selectedRows && selectedRows.length > 0 && (
-            <Dropdown
-              overlay={
-                <Menu
-                  onClick={async e => {
-                    if (e.key === 'remove') {
-                      await handleRemove(selectedRows);
-                      action.reload();
-                    }
-                  }}
-                  selectedKeys={[]}
-                >
-                  <Menu.Item key="remove">批量删除</Menu.Item>
-                  <Menu.Item key="approval">批量审批</Menu.Item>
-                </Menu>
-              }
-            >
-              <Button>
-                批量操作 <DownOutlined />
-              </Button>
-            </Dropdown>
-          ),
-        ]}
-        tableAlertRender={(selectedRowKeys, selectedRows) => (
-          <div>
-            已选择 <a style={{ fontWeight: 600 }}>{selectedRowKeys.length}</a> 项&nbsp;&nbsp;
-            <span>
-              服务调用次数总计 {selectedRows.reduce((pre, item) => pre + item.callNo, 0)} 万
-            </span>
-          </div>
-        )}
-        request={params => queryRule(params)}
-        columns={columns}
-        rowSelection={{}}
-      />
-      <CreateForm
-        onSubmit={async value => {
-          const success = await handleAdd(value);
-          if (success) {
-            handleModalVisible(false);
-            if (actionRef.current) {
-              actionRef.current.reload();
-            }
-          }
-        }}
-        onCancel={() => handleModalVisible(false)}
-        modalVisible={createModalVisible}
-      />
-      {stepFormValues && Object.keys(stepFormValues).length ? (
-        <UpdateForm
-          onSubmit={async value => {
-            const success = await handleUpdate(value);
+        <ProTable<VideoTableListItem>
+          actionRef={actionRef}
+          rowKey="aid"
+          toolBarRender={() => [
+            <Button icon={<PlusOutlined />} type="primary" onClick={() => handleModalVisible(true)}>
+              新建任务
+            </Button>,
+          ]}
+          tableAlertRender={false}
+          request={async (params) => {
+            const pageIndex: number = params?.current ?? 1;
+            const pageSize: number = params?.pageSize ?? 5;
+            delete params?.current;
+            delete params?.pageSize;
+            const data = await getTaskList({
+              ...params,
+              pageIndex: pageIndex,
+              pageSize: pageSize,
+            });
+            return {
+              data: data.data.results,
+              total: data.data.count,
+              pageSize: pageSize,
+              current: pageIndex,
+            };
+          }}
+          columns={columns}
+          options={{
+            density: false,
+            fullScreen: false,
+            reload: true,
+            setting: false,
+          }}
+          search={false}
+          pagination={{
+            pageSize: 5,
+            showTotal: (total, range) => `第 ${range[0]} - ${range[1]} 条/总共 ${total} 条`,
+          }}
+        />
+        <CreateForm
+          onSubmit={async (value) => {
+            const success = await handleAdd(value);
             if (success) {
               handleModalVisible(false);
-              setStepFormValues({});
               if (actionRef.current) {
                 actionRef.current.reload();
               }
             }
           }}
-          onCancel={() => {
-            handleUpdateModalVisible(false);
-            setStepFormValues({});
-          }}
-          updateModalVisible={updateModalVisible}
-          values={stepFormValues}
+          onCancel={() => handleModalVisible(false)}
+          modalVisible={createModalVisible}
         />
-      ) : null}
     </PageHeaderWrapper>
   );
 };

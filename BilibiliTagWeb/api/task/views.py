@@ -9,7 +9,7 @@ from django.http import JsonResponse
 from api.tasks import task_handler, task_spider
 from api.helpers import check_dict_required_param, response_json
 from api.models import Tasks
-from helpers import ScrapyField, HandlerField, TaskType
+from helpers import ScrapyField, HandlerField, TaskType, HandlerErrcode
 
 
 def start_handler(request, *args, **kwargs):
@@ -101,6 +101,7 @@ def get_task_list(request, *args, **kwargs):
     """
     返回的json实例：
         {
+            'task_id': 'bbb2ffb3-0351-4277-a248-b7cd4ccbc7d9',
             'task_type': 0,  # 0为爬虫，1为处理器
             'tid': 17,
             'time_from': 20160101,
@@ -134,6 +135,7 @@ def get_task_list(request, *args, **kwargs):
     for task_record in task_records:
         celery_task = AsyncResult(task_record.task_id)
         item = {
+            'task_id': task_record.task_id,
             'task_type': task_record.task_type,
             'tid': task_record.tid,
             'time_from': task_record.time_from,
@@ -144,7 +146,6 @@ def get_task_list(request, *args, **kwargs):
             'progress': [],
             'extra': {},
         }
-
 
         if celery_task.state == 'PROGRESS' or celery_task.state == 'SUCCESS':
             if (task_record.task_type == TaskType.Scrapy.value):
@@ -169,8 +170,13 @@ def get_task_list(request, *args, **kwargs):
                 })
                 item['extra']['status'] = celery_task.result[
                     HandlerField.Status.value]
+
+                if item['state'] == 'SUCCESS' and item['extra']['status'] != HandlerErrcode.Success.value:
+                    # 业务层面修改state
+                    item['state'] = 'ERROR'
         result.append(item)
-    return JsonResponse(response_json({
-        'count': Tasks.objects.count(),
-        'results': result
-    }))
+    return JsonResponse(
+        response_json({
+            'count': Tasks.objects.count(),
+            'results': result
+        }))

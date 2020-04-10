@@ -1,169 +1,199 @@
+import moment, { Moment } from 'moment';
+import shortid from 'shortid';
 import { DownOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Divider, Dropdown, Menu, message, Progress } from 'antd';
-import React, { useState, useRef } from 'react';
+import { Button, message, Progress, Calendar, Card, Row, Col, Select, DatePicker } from 'antd';
+import React, { useState, useRef, useEffect } from 'react';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import ProTable, { ProColumns, ActionType } from '@ant-design/pro-table';
-import CreateForm from './components/CreateForm';
-import UpdateForm, { FormValueType } from './components/UpdateForm';
-import { TableListItem } from './data.d';
-import { queryRule, updateRule, addRule, removeRule } from './service';
+import CreateForm, { FormValueType } from './components/CreateForm';
+import YearCalendar from './components/YearCalendar';
+import {
+  TaskTableListItem,
+  TaskProgress,
+  TaskStartParams,
+  RecordListItem,
+  RecordListParams,
+  CalendarDataList,
+} from './data.d';
+import { getTaskList, startSpider, startHandler, getReocrdList } from './service';
+import styles from './style.less';
+import { TASK_TYPE_NAME, TYPE_ID_NAME, momentToTimestamp } from '@/utils/utils';
+
+const { Option } = Select;
 
 /**
- * 添加节点
+ * 创建异步任务
  * @param fields
  */
 const handleAdd = async (fields: FormValueType) => {
-  const hide = message.loading('正在添加');
+  const hide = message.loading('正在创建任务');
   try {
-    await addRule({
-      desc: fields.desc,
-    });
-    hide();
-    message.success('添加成功');
+    if (fields.task_type && fields.tid && fields.time) {
+      const params: TaskStartParams = {
+        tid: fields.tid,
+        from: parseInt(fields.time[0].format('YYYYMMDD')),
+        to: parseInt(fields.time[1].format('YYYYMMDD')),
+      };
+      hide();
+      let response;
+      if (fields.task_type == 0) {
+        response = await startSpider(params);
+      } else {
+        response = await startHandler(params);
+      }
+
+      if (response.status == 0) {
+        message.success('任务创建成功');
+      } else {
+        message.error(response.message);
+      }
+    }
     return true;
   } catch (error) {
     hide();
-    message.error('添加失败请重试！');
-    return false;
-  }
-};
-
-/**
- * 更新节点
- * @param fields
- */
-const handleUpdate = async (fields: FormValueType) => {
-  const hide = message.loading('正在配置');
-  try {
-    await updateRule({
-      name: fields.name,
-      desc: fields.desc,
-      key: fields.key,
-    });
-    hide();
-
-    message.success('配置成功');
-    return true;
-  } catch (error) {
-    hide();
-    message.error('配置失败请重试！');
-    return false;
-  }
-};
-
-/**
- *  删除节点
- * @param selectedRows
- */
-const handleRemove = async (selectedRows: TableListItem[]) => {
-  const hide = message.loading('正在删除');
-  if (!selectedRows) return true;
-  try {
-    await removeRule({
-      key: selectedRows.map(row => row.key),
-    });
-    hide();
-    message.success('删除成功，即将刷新');
-    return true;
-  } catch (error) {
-    hide();
-    message.error('删除失败，请重试');
+    message.error('创建失败，请重试');
     return false;
   }
 };
 
 const TableList: React.FC<{}> = () => {
   const [createModalVisible, handleModalVisible] = useState<boolean>(false);
-  const [updateModalVisible, handleUpdateModalVisible] = useState<boolean>(false);
-  const [stepFormValues, setStepFormValues] = useState({});
   const actionRef = useRef<ActionType>();
-  const columns: ProColumns<TableListItem>[] = [
+
+  // 定时刷新表格
+  useEffect(() => {
+    const tableReloadTimer = setInterval(() => {
+      if (actionRef.current) {
+        actionRef.current.reload();
+      }
+    }, 5000);
+
+    return () => clearInterval(tableReloadTimer);
+  }, []);
+
+  const columns: ProColumns<TaskTableListItem>[] = [
     {
-      title: '规则名称',
-      dataIndex: 'name',
+      title: '任务类型',
+      dataIndex: 'task_type',
+      renderText: (val: number) => `${TASK_TYPE_NAME[val]}`,
     },
     {
-      title: '描述',
-      dataIndex: 'desc',
+      title: '分区',
+      dataIndex: 'tid',
+      renderText: (val: number) => `${TYPE_ID_NAME[val]}`,
     },
     {
-      title: '服务调用次数',
-      dataIndex: 'callNo',
-      sorter: true,
-      renderText: (val: string) => `${val} 万`,
+      title: '时间范围',
+      renderText: (_, record) =>
+        `${moment(record.time_from.toString()).format('YYYY-MM-DD')} ~ ${moment(record.time_to.toString()).format(
+          'YYYY-MM-DD',
+        )}`,
     },
     {
       title: '状态',
-      dataIndex: 'status',
+      dataIndex: 'state',
       valueEnum: {
-        0: { text: '关闭', status: 'Default' },
-        1: { text: '运行中', status: 'Processing' },
-        2: { text: '已上线', status: 'Success' },
-        3: { text: '异常', status: 'Error' },
+        PENDING: { text: '未知', status: 'Default' },
+        STARTED: { text: '已开始', status: 'Warning' },
+        PROGRESS: { text: '进行中', status: 'Processing' },
+        SUCCESS: { text: '已完成', status: 'Success' },
+        ERROR: { text: '异常', status: 'Error' },
       },
     },
     {
-      title: '上次调度时间',
-      dataIndex: 'updatedAt',
-      sorter: true,
-      valueType: 'dateTime',
-    },
-    {
-      title: '操作',
-      dataIndex: 'option',
-      valueType: 'option',
-      render: (_, record) => (
+      title: '进度',
+      dataIndex: 'progress',
+      width: 400,
+      render: (_, record: TaskTableListItem) => (
         <>
-          <a
-            onClick={() => {
-              handleUpdateModalVisible(true);
-              setStepFormValues(record);
-            }}
-          >
-            配置
-          </a>
-          <Divider type="vertical" />
-          <a href="">订阅警报</a>
+          {record.progress.map((progress: TaskProgress) => {
+            const percent: number =
+              progress.total == 0 ? 0 : Math.round((progress.cur / progress.total) * 100);
+            return (
+              <Progress
+                style={{ width: 200 }}
+                percent={percent}
+                status={percent == 100 ? 'success' : 'active'}
+                strokeWidth={6}
+                key={shortid.generate()}
+                format={(percent) => `${percent}%, (${progress.cur}/${progress.total})`}
+              />
+            );
+          })}
         </>
       ),
     },
+    {
+      title: '开始时间',
+      dataIndex: 'time_start',
+      renderText: (val: number) => `${moment(val * 1000).format('YYYY-MM-DD HH:mm:ss')}`,
+    },
+    {
+      title: '结束时间',
+      dataIndex: 'time_end',
+      renderText: (val: number) =>
+        `${val == -1 ? '--' : moment(val * 1000).format('YYYY-MM-DD HH:mm:ss')}`,
+    },
   ];
-
   return (
     <PageHeaderWrapper>
-      <ProTable<TableListItem>
-        headerTitle="任务列表"
-        actionRef={actionRef}
-        rowKey="key"
-        toolBarRender={() => [
-          <Button icon={<PlusOutlined />} type="primary" onClick={() => handleModalVisible(true)}>
-            新建
-          </Button>
-        ]}
-        tableAlertRender={false}
-        request={params => queryRule(params)}
-        columns={columns}
-        options={{
-          density: false,
-          fullScreen: false,
-          reload:true,
-          setting: false
-       }}
-       search={false}
-      />
-      <CreateForm
-        onSubmit={async value => {
-          const success = await handleAdd(value);
-          if (success) {
-            handleModalVisible(false);
-            if (actionRef.current) {
-              actionRef.current.reload();
+      <Card title="任务列表" style={{ marginBottom: 24 }} bordered={false}>
+        <ProTable<TaskTableListItem>
+          actionRef={actionRef}
+          rowKey="task_id"
+          toolBarRender={() => [
+            <Button icon={<PlusOutlined />} type="primary" onClick={() => handleModalVisible(true)}>
+              新建任务
+            </Button>,
+          ]}
+          tableAlertRender={false}
+          request={async (params) => {
+            const pageIndex: number = params?.current ?? 1;
+            const pageSize: number = params?.pageSize ?? 5;
+            delete params?.current;
+            delete params?.pageSize;
+            const data = await getTaskList({
+              ...params,
+              pageIndex: pageIndex,
+              pageSize: pageSize,
+            });
+            return {
+              data: data.data.results,
+              total: data.data.count,
+              pageSize: pageSize,
+              current: pageIndex,
+            };
+          }}
+          columns={columns}
+          options={{
+            density: false,
+            fullScreen: false,
+            reload: true,
+            setting: false,
+          }}
+          search={false}
+          pagination={{
+            pageSize: 5,
+            showTotal: (total, range) => `第 ${range[0]} - ${range[1]} 条/总共 ${total} 条`,
+          }}
+        />
+        <CreateForm
+          onSubmit={async (value) => {
+            const success = await handleAdd(value);
+            if (success) {
+              handleModalVisible(false);
+              if (actionRef.current) {
+                actionRef.current.reload();
+              }
             }
-          }
-        }}
-        onCancel={() => handleModalVisible(false)}
-        modalVisible={createModalVisible}
-      />
+          }}
+          onCancel={() => handleModalVisible(false)}
+          modalVisible={createModalVisible}
+        />
+      </Card>
+      <Card title="已爬取记录" style={{ marginBottom: 24 }} bordered={true}>
+        <YearCalendar />
+      </Card>
     </PageHeaderWrapper>
   );
 };

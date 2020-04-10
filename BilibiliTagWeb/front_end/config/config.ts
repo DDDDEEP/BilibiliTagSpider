@@ -72,7 +72,7 @@ export default defineConfig({
           path: '/',
           component: '../layouts/BasicLayout',
           Routes: ['src/pages/Authorized'],
-          authority: ['admin', 'user'],
+          // authority: ['admin', 'user'],
           routes: [
             {
               name: 'task',
@@ -137,7 +137,7 @@ export default defineConfig({
             {
               path: '/',
               redirect: '/task/control',
-              authority: ['admin', 'user'],
+              // authority: ['admin', 'user'],
             },
             {
               component: '404',
@@ -198,4 +198,5 @@ export default defineConfig({
   },
   proxy: proxy[REACT_APP_ENV || 'dev'],
   chainWebpack: webpackPlugin,
+  // devtool: 'inline-source-map'
 });
