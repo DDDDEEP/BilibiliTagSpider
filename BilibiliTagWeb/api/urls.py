@@ -6,6 +6,7 @@ from django.urls import path
 urlpatterns = [
     path('video', views.VideoViewSet.as_view({'get': 'list'}), name='video'),
     path('record', views.RecordViewSet.as_view({'get': 'list'}), name='record'),
+    path('tag', views.TagViewSet.as_view({'get': 'list'}), name='tag'),
     path('rank/tag_count',
          rank_views.get_tag_count_rank,
          name='rank.tag_count'),

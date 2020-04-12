@@ -47,6 +47,8 @@ class Tags(models.Model):
     _id = models.ObjectIdField(primary_key=True)
     name = models.CharField(max_length=64)
 
+    objects = models.DjongoManager()
+
     class Meta:
         db_table = 'tags'
         indexes = [

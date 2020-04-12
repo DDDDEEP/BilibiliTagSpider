@@ -101,6 +101,13 @@ export const monthFixZero = (month: number) => {
   return month.toString().padStart(2, '0');
 }
 
-export const momentToTimestamp = (moment : moment.Moment) => {
+export const momentToTimestamp = (moment: moment.Moment) => {
   return Math.floor(moment.valueOf() / 1000)
+}
+
+export const secondsToStr = (seconds: number) => {
+  const hour = Math.ceil(seconds / 3600);
+  const minute = Math.ceil(seconds % 3600 / 60);
+  const second = Math.ceil(seconds % 3600 % 60);
+  return `${hour}时${monthFixZero(minute)}分${monthFixZero(second)}秒`;
 }

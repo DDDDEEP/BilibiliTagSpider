@@ -39,9 +39,11 @@ function getVideoList(req: Request, res: Response, u: string) {
   }
 
   const params = (parse(url, true).query as unknown) as TableListParams;
+  params.pageIndex = parseInt(params.pageIndex);
+  params.pageSize = parseInt(params.pageSize);
 
-  const startIndex:number = (params.pageIndex - 1) * params.pageSize
-  const endIndex:number = startIndex + params.pageSize
+  const startIndex: number = (params.pageIndex - 1) * params.pageSize
+  const endIndex: number = startIndex + params.pageSize
   const result = {
     status: 0,
     data: {

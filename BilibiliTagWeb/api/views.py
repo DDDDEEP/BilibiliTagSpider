@@ -5,9 +5,9 @@ from rest_framework import viewsets
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.response import Response
 
-from api.models import Videos, Records
+from api.models import Videos, Records, Tags
 from api.pagination import CustomPageNumberPagination
-from api.serializers import VideoSerializer, RecordSerializer
+from api.serializers import VideoSerializer, RecordSerializer, TagSerializer
 
 
 class VideoFilter(filters.FilterSet):
@@ -80,5 +80,32 @@ class RecordViewSet(viewsets.ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         response_data = super(RecordViewSet,
+                              self).retrieve(request, *args, **kwargs)
+        return Response(response_data.data)
+
+
+class TagViewSet(viewsets.ModelViewSet):
+    serializer_class = TagSerializer
+    pagination_class = CustomPageNumberPagination
+    queryset = Tags.objects.all()
+    filter_backends = (filters.DjangoFilterBackend, SearchFilter,
+                       OrderingFilter)
+    # filter_class = RecordFilter
+    __basic_fields = (
+        'name',
+    )
+    filter_fields = __basic_fields
+    # search_fields = __basic_fields
+
+    def __init__(self, **kwargs):
+        super(TagViewSet, self).__init__(**kwargs)
+
+    def list(self, request, *args, **kwargs):
+        response_data = super(TagViewSet,
+                              self).list(request, *args, **kwargs)
+        return Response(response_data.data)
+
+    def retrieve(self, request, *args, **kwargs):
+        response_data = super(TagViewSet,
                               self).retrieve(request, *args, **kwargs)
         return Response(response_data.data)

@@ -40,3 +40,11 @@ class RecordSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Records
         fields = '__all__'
+
+
+class TagSerializer(serializers.ModelSerializer):
+    _id = ObjectIdField(read_only=True)
+
+    class Meta:
+        model = models.Tags
+        fields = '__all__'
