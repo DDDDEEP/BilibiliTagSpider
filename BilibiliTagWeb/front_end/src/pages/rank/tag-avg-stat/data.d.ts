@@ -1,6 +1,7 @@
-export interface TagCountTableListItem {
-  sum_count: number;
+export interface TagAvgStatTableListItem {
+  total_count: number;
   tag_name: string;
+  avg_stat: number;
 }
 
 export interface TableListPagination {
@@ -17,6 +18,8 @@ export interface TableListData {
 export interface TableListParams {
   tid?: number;
   count?: number;
+  stat_code?: number;
+  min_tag_count?: number;
   pageIndex: number;
   pageSize: number;
 }

@@ -8,7 +8,6 @@ import { TYPE_ID_NAME, momentToTimestamp, secondsToStr } from '@/utils/utils';
 import moment from 'moment';
 
 const TableList: React.FC<{}> = () => {
-  const defaultTid: number = 17;
   const actionRef = useRef<ActionType>();
   const columns: ProColumns<VideoTableListItem>[] = [
     {
@@ -26,9 +25,16 @@ const TableList: React.FC<{}> = () => {
     {
       title: '分区',
       dataIndex: 'tid',
-      initialValue: defaultTid.toString(),
+      initialValue: '17',
       valueEnum: TYPE_ID_NAME,
       width: 130,
+    },
+    {
+      title: '投稿时间',
+      dataIndex: 'pubdate',
+      valueType: 'dateRange',
+      renderText: (val: number) => `${moment(val * 1000).format('YYYY-MM-DD HH:mm:ss')}`,
+      width: 180,
     },
     {
       title: '标签',
@@ -44,13 +50,6 @@ const TableList: React.FC<{}> = () => {
         </>
       ),
       width: 250,
-    },
-    {
-      title: '投稿时间',
-      dataIndex: 'pubdate',
-      valueType: 'dateRange',
-      renderText: (val: number) => `${moment(val * 1000).format('YYYY-MM-DD HH:mm:ss')}`,
-      width: 180,
     },
     {
       title: '时长',
@@ -107,7 +106,7 @@ const TableList: React.FC<{}> = () => {
             delete params?.pageSize;
             delete params?._timestamp;
             if (params.tid == null) {
-              params.tid = defaultTid;
+              params.tid = 17;
             }
             if (params.pubdate) {
               params.pubdate_min = momentToTimestamp(moment(params.pubdate[0]).startOf('day'));

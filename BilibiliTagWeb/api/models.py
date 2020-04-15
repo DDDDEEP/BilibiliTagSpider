@@ -1,12 +1,14 @@
 # Create your models here.
 from djongo import models
 
+# from .field import ObjectIdField
+
 
 class Videos(models.Model):
     _id = models.ObjectIdField(primary_key=True)
     tid = models.IntegerField()
     pubdate = models.IntegerField()
-    aid = models.IntegerField()
+    aid = models.IntegerField(unique=True)
     tags = models.CharField(max_length=128)
 
     title = models.CharField(max_length=128)
@@ -63,19 +65,14 @@ class Tags(models.Model):
         ]
 
 
-class AidCollection(models.Model):
-    aid = models.IntegerField()
-
-    class Meta:
-        abstract = True
-
-
 class VideoTag(models.Model):
     _id = models.ObjectIdField(primary_key=True)
     tid = models.IntegerField()
     pubdate = models.IntegerField()
+
+    # tag_id = ObjectIdField()
     tag_id = models.BinaryField(max_length=12)
-    aids = models.ArrayField(model_container=AidCollection)
+    aids = models.ListField(models.IntegerField())
 
     avg_stat_view = models.IntegerField()
     avg_stat_danmaku = models.IntegerField()
@@ -85,6 +82,8 @@ class VideoTag(models.Model):
     avg_stat_share = models.IntegerField()
     avg_stat_like = models.IntegerField()
     avg_stat_dislike = models.IntegerField()
+
+    objects = models.DjongoManager()
 
     class Meta:
         db_table = 'video_tag'

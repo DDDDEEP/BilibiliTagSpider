@@ -333,7 +333,7 @@ class TagHandler:
             {
                 '$group': {
                     '_id': '$tag_id',
-                    'total_count': {
+                    'sum_count': {
                         '$sum': '$count'
                     },
                     'total_' + stat_name: {
@@ -344,13 +344,13 @@ class TagHandler:
             {
                 '$addFields': {
                     'avg_' + stat_name: {
-                        '$divide': ['$total_' + stat_name, '$total_count']
+                        '$divide': ['$total_' + stat_name, '$sum_count']
                     }
                 }
             },
             {
                 '$match': {
-                    'total_count': {
+                    'sum_count': {
                         '$gte': min_tag_count
                     }
                 }
@@ -380,8 +380,8 @@ class TagHandler:
                 '$project': {
                     '_id': 0,
                     'tag_name': '$tag.name',
-                    'total_count': 1,
-                    'avg_' + stat_name: {
+                    'sum_count': 1,
+                    'avg_stat': {
                         '$trunc': ['$avg_' + stat_name, 2]
                     }
                 }

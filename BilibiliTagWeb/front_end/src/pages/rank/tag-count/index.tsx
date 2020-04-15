@@ -8,14 +8,13 @@ import { TYPE_ID_NAME, momentToTimestamp, secondsToStr } from '@/utils/utils';
 import moment from 'moment';
 
 const TableList: React.FC<{}> = () => {
-  const defaultTid: number = 17;
   const actionRef = useRef<ActionType>();
   const columns: ProColumns<TagCountTableListItem>[] = [
     {
       title: '分区',
       dataIndex: 'tid',
       hideInTable: true,
-      initialValue: defaultTid.toString(),
+      initialValue: '17',
       valueEnum: TYPE_ID_NAME,
     },
     {
@@ -70,7 +69,7 @@ const TableList: React.FC<{}> = () => {
             delete params?.pageSize;
             delete params?._timestamp;
             if (params.tid == null) {
-              params.tid = defaultTid;
+              params.tid = 17;
             }
             if (params.pubdate) {
               params.from = moment(params.pubdate[0]).format('YYYYMMDD');

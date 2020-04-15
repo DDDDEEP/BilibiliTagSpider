@@ -108,6 +108,12 @@ export default defineConfig({
                   component: './data/tag',
                 },
                 {
+                  name: 'video_tag',
+                  icon: 'TableOutlined',
+                  path: '/data/video-tag',
+                  component: './data/video-tag',
+                },
+                {
                   component: '404',
                 },
               ],

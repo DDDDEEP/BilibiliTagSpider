@@ -82,7 +82,7 @@ export const TYPE_ID_NAME = {
 // 枚举视频数据项
 export const VIDEO_STAT_NAME = {
   '0': '播放量',
-  '1': '弹幕',
+  '1': '弹幕数',
   '2': '评论',
   '3': '收藏',
   '4': '硬币',

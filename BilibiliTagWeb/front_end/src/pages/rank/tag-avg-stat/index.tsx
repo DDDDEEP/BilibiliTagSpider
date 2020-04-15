@@ -2,21 +2,27 @@ import { message, Tag } from 'antd';
 import React, { useState, useRef } from 'react';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import ProTable, { ProColumns, ActionType } from '@ant-design/pro-table';
-import { TagCountTableListItem } from './data.d';
-import { getTagCountList } from './service';
-import { TYPE_ID_NAME, momentToTimestamp, secondsToStr } from '@/utils/utils';
+import { TagAvgStatTableListItem } from './data.d';
+import { getTagAvgStattList } from './service';
+import { TYPE_ID_NAME, VIDEO_STAT_NAME, momentToTimestamp, secondsToStr } from '@/utils/utils';
 import moment from 'moment';
 
 const TableList: React.FC<{}> = () => {
-  const defaultTid: number = 17;
   const actionRef = useRef<ActionType>();
-  const columns: ProColumns<TagCountTableListItem>[] = [
+  const columns: ProColumns<TagAvgStatTableListItem>[] = [
     {
       title: '分区',
       dataIndex: 'tid',
       hideInTable: true,
-      initialValue: defaultTid.toString(),
+      initialValue: '17',
       valueEnum: TYPE_ID_NAME,
+    },
+    {
+      title: '数据项',
+      dataIndex: 'stat_code',
+      hideInTable: true,
+      initialValue: '0',
+      valueEnum: VIDEO_STAT_NAME,
     },
     {
       title: '投稿时间',
@@ -37,6 +43,12 @@ const TableList: React.FC<{}> = () => {
       },
     },
     {
+      title: '最小标签出现次数',
+      dataIndex: 'min_tag_count',
+      hideInTable: true,
+      initialValue: 10,
+    },
+    {
       title: '排名',
       dataIndex: 'index',
       valueType: 'indexBorder',
@@ -46,11 +58,17 @@ const TableList: React.FC<{}> = () => {
       title: '标签名',
       dataIndex: 'tag_name',
       hideInSearch: true,
-      render: (_, record: TagCountTableListItem) => (<Tag style={{fontSize: 16}}>{record.tag_name}</Tag>),
+      render: (_, record: TagAvgStatTableListItem) => (<Tag style={{fontSize: 16}}>{record.tag_name}</Tag>),
       align: 'center',
     },
     {
-      title: '出现次数',
+      title: '平均数据',
+      dataIndex: 'avg_stat',
+      hideInSearch: true,
+      align: 'center',
+    },
+    {
+      title: '标签出现次数',
       dataIndex: 'sum_count',
       hideInSearch: true,
       align: 'center',
@@ -59,7 +77,7 @@ const TableList: React.FC<{}> = () => {
 
   return (
     <PageHeaderWrapper>
-        <ProTable<TagCountTableListItem>
+        <ProTable<TagAvgStatTableListItem>
           headerTitle="排行列表"
           actionRef={actionRef}
           rowKey="tag_name"
@@ -70,14 +88,14 @@ const TableList: React.FC<{}> = () => {
             delete params?.pageSize;
             delete params?._timestamp;
             if (params.tid == null) {
-              params.tid = defaultTid;
+              params.tid = 17;
             }
             if (params.pubdate) {
               params.from = moment(params.pubdate[0]).format('YYYYMMDD');
               params.to = moment(params.pubdate[1]).format('YYYYMMDD');
               delete params.pubdate;
             }
-            const data = await getTagCountList({
+            const data = await getTagAvgStattList({
               ...params,
             });
             return {
@@ -92,6 +110,7 @@ const TableList: React.FC<{}> = () => {
             setting: false,
           }}
           pagination={false}
+          search = {{collapsed: false,}}
         />
     </PageHeaderWrapper>
   );

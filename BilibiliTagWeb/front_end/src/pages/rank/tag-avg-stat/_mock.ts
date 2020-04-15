@@ -2,10 +2,10 @@
 import moment from 'moment';
 import { Request, Response } from 'express';
 import { parse } from 'url';
-import { TableListParams, VideoTableListItem } from './data.d';
+import { TableListParams, TagAvgStatTableListItem } from './data.d';
 
 // mock tableListDataSource
-let tableListDataSource: VideoTableListItem[] = [];
+let tableListDataSource: TagAvgStatTableListItem[] = [];
 
 for (let i = 0; i < 200; i += 1) {
   const randomPubdate: number = Math.round(Math.random() * 10000000000);

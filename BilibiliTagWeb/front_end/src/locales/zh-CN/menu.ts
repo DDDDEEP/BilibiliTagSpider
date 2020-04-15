@@ -55,6 +55,7 @@ export default {
   'menu.data': '数据列表',
   'menu.data.video': '视频列表',
   'menu.data.tag': '标签列表',
+  'menu.data.video_tag': '单日标签列表',
   'menu.rank': '排行查询',
   'menu.rank.tag-count': '标签出现次数',
   'menu.rank.tag-avg-stat': '标签平均数据',
