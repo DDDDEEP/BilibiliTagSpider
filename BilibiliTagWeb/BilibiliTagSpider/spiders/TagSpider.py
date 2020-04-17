@@ -4,13 +4,15 @@ import time
 
 from scrapy import Request, Spider
 from scrapy.utils.project import get_project_settings
+from scrapy_redis.spiders import RedisSpider
 
 from ..items import VideoItem, RecordItem
 from helpers import date_to_timestamp, timestamp_to_date, stat_to_int, RecordStatus
 
 
-class TagSpider(Spider):
+class TagSpider(RedisSpider):
     name = "tagspider"
+    redis_key = 'tagspider:start_urls'
     allowed_domains = [
         "bilibili.com",
     ]

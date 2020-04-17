@@ -70,20 +70,25 @@ const TableList: React.FC<{}> = () => {
       hideInSearch: true,
     },
     {
-      title: '平均硬币',
-      dataIndex: 'avg_stat_coin',
+      title: '平均收藏',
+      dataIndex: 'avg_stat_favorite',
       hideInSearch: true,
     },
-    {
-      title: '平均分享',
-      dataIndex: 'avg_stat_share',
-      hideInSearch: true,
-    },
-    {
-      title: '平均点赞',
-      dataIndex: 'avg_stat_like',
-      hideInSearch: true,
-    },
+    // {
+    //   title: '平均硬币',
+    //   dataIndex: 'avg_stat_coin',
+    //   hideInSearch: true,
+    // },
+    // {
+    //   title: '平均分享',
+    //   dataIndex: 'avg_stat_share',
+    //   hideInSearch: true,
+    // },
+    // {
+    //   title: '平均点赞',
+    //   dataIndex: 'avg_stat_like',
+    //   hideInSearch: true,
+    // },
     {
       title: '操作',
       key: 'action',
@@ -177,20 +182,25 @@ const TableList: React.FC<{}> = () => {
       hideInSearch: true,
     },
     {
-      title: '硬币',
-      dataIndex: 'stat_coin',
+      title: '收藏',
+      dataIndex: 'stat_favorite',
       hideInSearch: true,
     },
-    {
-      title: '分享',
-      dataIndex: 'stat_share',
-      hideInSearch: true,
-    },
-    {
-      title: '点赞',
-      dataIndex: 'stat_like',
-      hideInSearch: true,
-    },
+    // {
+    //   title: '硬币',
+    //   dataIndex: 'stat_coin',
+    //   hideInSearch: true,
+    // },
+    // {
+    //   title: '分享',
+    //   dataIndex: 'stat_share',
+    //   hideInSearch: true,
+    // },
+    // {
+    //   title: '点赞',
+    //   dataIndex: 'stat_like',
+    //   hideInSearch: true,
+    // },
     
   ];
 

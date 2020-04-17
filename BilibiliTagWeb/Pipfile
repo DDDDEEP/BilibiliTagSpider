@@ -20,6 +20,7 @@ psycopg2 = "*"
 redis = "*"
 requests = "*"
 scrapy = "*"
+scrapy-redis = "*"
 
 [requires]
 python_version = "3.7"

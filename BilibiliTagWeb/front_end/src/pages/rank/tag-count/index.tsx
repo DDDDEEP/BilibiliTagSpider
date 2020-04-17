@@ -79,6 +79,9 @@ const TableList: React.FC<{}> = () => {
             const data = await getTagCountList({
               ...params,
             });
+            if (data.status == 1) {
+              message.error(data.message);
+            } 
             return {
               data: data.data.result,
             };

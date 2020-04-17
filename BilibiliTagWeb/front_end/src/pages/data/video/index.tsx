@@ -74,20 +74,25 @@ const TableList: React.FC<{}> = () => {
       hideInSearch: true,
     },
     {
-      title: '硬币',
-      dataIndex: 'stat_coin',
+      title: '收藏',
+      dataIndex: 'stat_favorite',
       hideInSearch: true,
     },
-    {
-      title: '分享',
-      dataIndex: 'stat_share',
-      hideInSearch: true,
-    },
-    {
-      title: '点赞',
-      dataIndex: 'stat_like',
-      hideInSearch: true,
-    },
+    // {
+    //   title: '硬币',
+    //   dataIndex: 'stat_coin',
+    //   hideInSearch: true,
+    // },
+    // {
+    //   title: '分享',
+    //   dataIndex: 'stat_share',
+    //   hideInSearch: true,
+    // },
+    // {
+    //   title: '点赞',
+    //   dataIndex: 'stat_like',
+    //   hideInSearch: true,
+    // },
     
   ];
 
