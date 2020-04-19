@@ -7,6 +7,7 @@
 
 from fake_useragent import UserAgent
 from scrapy import signals
+from scrapy.http import Request
 import logging
 import requests
 
@@ -152,3 +153,15 @@ class RandomUserAgentMiddlware(object):
         def get_ua():
             return getattr(self.ua, self.ua_type)
         request.headers.setdefault('User-Agent', get_ua())
+
+
+class ScrapyRedisMiddleware(object):
+    """启用scrapy-redis时，使Request带有meta数据"""
+    def process_spider_output(self, response, result, spider):
+        for request_or_item in result:
+            if isinstance(request_or_item, Request):
+                self.persist_meta(response, request_or_item)
+            yield request_or_item
+
+    def persist_meta(self, response, request):
+        request.meta['start_url'] = response.meta['start_url']

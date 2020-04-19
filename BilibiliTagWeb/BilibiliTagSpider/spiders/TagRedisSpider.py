@@ -2,15 +2,18 @@ import json
 import math
 import time
 
-from scrapy import Request, Spider
+from scrapy import Request
 from scrapy.utils.project import get_project_settings
+from scrapy_redis.spiders import RedisSpider
 
 from ..items import VideoItem, RecordItem
 from helpers import date_to_timestamp, timestamp_to_date, stat_to_int, RecordStatus
 
 
-class TagSpider(Spider):
-    name = "tag_spider"
+class TagRedisSpider(RedisSpider):
+    """使用scrapy-redis的爬虫"""
+    name = "tag_redis_spider"
+    redis_key = 'tag_redis_spider:start_urls'
     allowed_domains = [
         "bilibili.com",
     ]
@@ -21,7 +24,7 @@ class TagSpider(Spider):
                  time_to=None,
                  *args,
                  **kwargs):
-        super(TagSpider, self).__init__(*args, **kwargs)
+        super(TagRedisSpider, self).__init__(*args, **kwargs)
         self.newlist_url = "https://api.bilibili.com/x/web-interface/newlist?rid={type_id}&type=0&pn={page}&ps={per_page}"
         self.video_url = "https://www.bilibili.com/video/av{aid}"
         self.stat_url = "https://api.bilibili.com/x/web-interface/archive/stat?aid={aid}"
@@ -35,33 +38,30 @@ class TagSpider(Spider):
         self.TIME_FROM = int(time_from)  # 起始日期
         self.TIME_TO = int(time_to)  # 结束日期
 
-    def start_requests(self):
-        """
-        通过热度排行API，获取视频总数，再进行后续分类解析
-        """
-        if self.TIME_FROM == self.TIME_TO:
-            # 如果前后日期相同，则直接请求当日的分页数据，防止Scrapy过滤重复请求
-            yield Request(self.hotlist_url.format(type_id=self.TYPE_ID,
-                                                  page=1,
-                                                  per_page=1,
-                                                  time_from=self.TIME_FROM,
-                                                  time_to=self.TIME_FROM),
-                          meta={
-                              'time_cur': self.TIME_FROM,
-                              'time_from_equal_to': True
-                          },
-                          callback=self.parse_hotlist_one_day,
-                          errback=self.errback_common)
-        else:
-            yield Request(self.hotlist_url.format(type_id=self.TYPE_ID,
-                                                  page=1,
-                                                  per_page=1,
-                                                  time_from=self.TIME_FROM,
-                                                  time_to=self.TIME_TO),
-                          callback=self.parse_hotlist_init,
-                          errback=self.errback_common)
+    # def make_requests_from_url(self, url):
+    #     if self.TIME_FROM == self.TIME_TO:
+    #         # 如果前后日期相同，则直接请求当日的分页数据，防止Scrapy过滤重复请求
+    #         yield Request(self.hotlist_url.format(type_id=self.TYPE_ID,
+    #                                               page=1,
+    #                                               per_page=1,
+    #                                               time_from=self.TIME_FROM,
+    #                                               time_to=self.TIME_FROM),
+    #                       meta={
+    #                           'time_cur': self.TIME_FROM,
+    #                           'time_from_equal_to': True
+    #                       },
+    #                       callback=self.parse_hotlist_one_day,
+    #                       errback=self.errback_common)
+    #     else:
+    #         yield Request(self.hotlist_url.format(type_id=self.TYPE_ID,
+    #                                               page=1,
+    #                                               per_page=1,
+    #                                               time_from=self.TIME_FROM,
+    #                                               time_to=self.TIME_TO),
+    #                       callback=self.parse_hotlist_init,
+    #                       errback=self.errback_common)
 
-    def parse_hotlist_init(self, response):
+    def parse(self, response):
         """
         通过热度排行API，按日期排序，获取视频总数，然后分日期进行爬取
         """
