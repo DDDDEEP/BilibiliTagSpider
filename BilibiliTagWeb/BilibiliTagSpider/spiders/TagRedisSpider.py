@@ -1,6 +1,8 @@
 import json
 import math
 import time
+import urllib.parse as urlparse
+from urllib.parse import parse_qs
 
 from scrapy import Request
 from scrapy.utils.project import get_project_settings
@@ -19,9 +21,6 @@ class TagRedisSpider(RedisSpider):
     ]
 
     def __init__(self,
-                 type_id=None,
-                 time_from=None,
-                 time_to=None,
                  *args,
                  **kwargs):
         super(TagRedisSpider, self).__init__(*args, **kwargs)
@@ -34,37 +33,20 @@ class TagRedisSpider(RedisSpider):
 
         self.items_total = 0  # 需爬取的视频总数
         self.parse_items_total = {}  # 各日期已爬取的视频总数
-        self.TYPE_ID = int(type_id)  # 分区id
-        self.TIME_FROM = int(time_from)  # 起始日期
-        self.TIME_TO = int(time_to)  # 结束日期
-
-    # def make_requests_from_url(self, url):
-    #     if self.TIME_FROM == self.TIME_TO:
-    #         # 如果前后日期相同，则直接请求当日的分页数据，防止Scrapy过滤重复请求
-    #         yield Request(self.hotlist_url.format(type_id=self.TYPE_ID,
-    #                                               page=1,
-    #                                               per_page=1,
-    #                                               time_from=self.TIME_FROM,
-    #                                               time_to=self.TIME_FROM),
-    #                       meta={
-    #                           'time_cur': self.TIME_FROM,
-    #                           'time_from_equal_to': True
-    #                       },
-    #                       callback=self.parse_hotlist_one_day,
-    #                       errback=self.errback_common)
-    #     else:
-    #         yield Request(self.hotlist_url.format(type_id=self.TYPE_ID,
-    #                                               page=1,
-    #                                               per_page=1,
-    #                                               time_from=self.TIME_FROM,
-    #                                               time_to=self.TIME_TO),
-    #                       callback=self.parse_hotlist_init,
-    #                       errback=self.errback_common)
+        self.TYPE_ID = 0  # 分区id
+        self.TIME_FROM = 0  # 起始日期
+        self.TIME_TO = 0  # 结束日期
 
     def parse(self, response):
         """
         通过热度排行API，按日期排序，获取视频总数，然后分日期进行爬取
         """
+        parsed = urlparse.urlparse(response.url)
+        param_list = parse_qs(parsed.query)
+        self.TYPE_ID = int(param_list['cate_id'][0])
+        self.TIME_FROM = int(param_list['time_from'][0])
+        self.TIME_TO = int(param_list['time_to'][0])
+
         self.logger.info("parse_hotlist_init，得到回应：{}".format(response.url))
         result = json.loads(response.text)
         if 'numResults' in result and result['numResults'] >= 0:
