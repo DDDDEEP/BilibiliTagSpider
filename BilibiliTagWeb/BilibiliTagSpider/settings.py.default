@@ -26,7 +26,7 @@ ROBOTSTXT_OBEY = True
 # Configure a delay for requests for the same website (default: 0)
 # See https://doc.scrapy.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
-DOWNLOAD_DELAY = 2
+DOWNLOAD_DELAY = 3
 # The download delay setting will honor only one of:
 # CONCURRENT_REQUESTS_PER_DOMAIN = 16
 # CONCURRENT_REQUESTS_PER_IP = 16
@@ -72,7 +72,6 @@ EXTENSIONS = {
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-    'scrapy_redis.pipelines.RedisPipeline': 300,  # 分布式
     'BilibiliTagSpider.pipelines.BilibilitagspiderPipeline': 300,
     'BilibiliTagSpider.pipelines.MongoPipeline': 350,
 }
@@ -98,6 +97,10 @@ ITEM_PIPELINES = {
 # HTTPCACHE_IGNORE_HTTP_CODES = []
 # HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
+# 日志设置
+LOG_LEVEL = 'INFO'
+LOG_STDOUT = True  # 使用Scrapyd时需要关闭该选项
+
 # 数据库
 MONGO_URI = 'localhost'
 MONGO_DB = 'bilibili_tag'
@@ -107,10 +110,6 @@ MONGO_PWD = 'root'
 # 爬虫相关变量
 PER_PAGE = 100  # 列表api的分页量
 
-# 日志设置
-LOG_LEVEL = 'INFO'
-LOG_STDOUT = True  # 使用Scrapyd时需要关闭该选项
-
 # 本地获取代理的地址
 PROXY_URL = '127.0.0.1:5555/random'
 
@@ -118,13 +117,24 @@ PROXY_URL = '127.0.0.1:5555/random'
 RANDOM_UA_TYPE = 'chrome'
 
 # Scrapy-Redis分布式设置
+ENABLE_SCRAPY_REDIS = True  # 启用分布式爬虫
 SCHEDULER = "scrapy_redis.scheduler.Scheduler"
 DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
 SCHEDULER_PERSIST = True
 FEED_EXPORT_ENCODING = 'utf-8'
 REDIS_PORT = 6379
-
 REDIS_HOST = '127.0.0.1'
 REDIS_PARAMS = {
     'password': 'root',
 }
+
+if ENABLE_SCRAPY_REDIS:
+    EXTENSIONS = {
+        'scrapy.extensions.logstats.LogStats': None,
+    }
+
+    ITEM_PIPELINES = {
+        'scrapy_redis.pipelines.RedisPipeline': 299,
+        'BilibiliTagSpider.pipelines.BilibilitagspiderPipeline': 300,
+        'BilibiliTagSpider.pipelines.MongoPipeline': 350,
+    }
