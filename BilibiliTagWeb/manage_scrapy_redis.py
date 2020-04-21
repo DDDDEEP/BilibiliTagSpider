@@ -69,15 +69,18 @@ for index in range(1, pages + 1):
     conn.rpush(REDIS_START_URL_KEY, url)
 
 # 监控爬虫进度
+url_len = conn.llen(REDIS_START_URL_KEY)
 item_len = conn.llen(REDIS_ITEMS_KEY)
-while item_len != num_results:
+while url_len != 0:
     time.sleep(2)
+    url_len = conn.llen(REDIS_START_URL_KEY)
     item_len = conn.llen(REDIS_ITEMS_KEY)
-    print("总爬取进度：({}/{})，{:.1f}%".format(
-        item_len,
-        num_results,
-        item_len / num_results * 100,
-    ))
+    # print("总爬取进度：({}/{})，{:.1f}%".format(
+    #     item_len,
+    #     num_results,
+    #     item_len / num_results * 100,
+    # ))
+    print("剩余urls：{}".format(url_len))
 
 print(
     "分区号{type_id}, [{time_from}-{time_to}]共有{num_results}个视频，{pages}页，每页{per_page}个视频"
