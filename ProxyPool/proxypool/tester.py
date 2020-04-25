@@ -1,20 +1,18 @@
+import sys
+import time
+import logging
 import asyncio
 import aiohttp
-import time
-import sys
-import logging
-try:
-    from aiohttp import ClientError
-except:
-    from aiohttp import ClientProxyConnectionError as ProxyConnectionError
+
 from proxypool.db import RedisClient
-from proxypool.setting import *
+import proxypool.setting as setting
 
 logger = logging.getLogger('ProxyPool')
 
 
 class Tester(object):
-    def __init__(self, proxy_key=REDIS_KEY):
+    """代理可用性测试器"""
+    def __init__(self, proxy_key=setting.REDIS_KEY):
         self.redis = RedisClient(proxy_key=proxy_key)
 
     async def test_single_proxy(self, proxy):
@@ -29,8 +27,12 @@ class Tester(object):
                 if isinstance(proxy, bytes):
                     proxy = proxy.decode('utf-8')
                 real_proxy = 'http://' + proxy
-                async with session.get(TEST_URL, headers=REQUEST_HEADERS, proxy=real_proxy, timeout=5, allow_redirects=False) as response:
-                    if response.status in VALID_STATUS_CODES:
+                async with session.get(setting.TEST_URL,
+                                       headers=setting.REQUEST_HEADERS,
+                                       proxy=real_proxy,
+                                       timeout=5,
+                                       allow_redirects=False) as response:
+                    if response.status in setting.VALID_STATUS_CODES:
                         self.redis.set_proxy_max(proxy)
                         logger.info('代理 {} 请求成功，响应码为 {}'.format(
                             proxy, response.status))
@@ -38,7 +40,9 @@ class Tester(object):
                         self.redis.decrease_proxy(proxy)
                         logger.info('代理 {} 的响应码不合法，为 {}'.format(
                             proxy, response.status))
-            except (ClientError, aiohttp.client_exceptions.ClientConnectorError, asyncio.TimeoutError, AttributeError) as e:
+            except (aiohttp.ClientError,
+                    aiohttp.client_exceptions.ClientConnectorError,
+                    asyncio.TimeoutError, AttributeError) as e:
                 self.redis.decrease_proxy(proxy)
                 logger.warning('代理 {} 请求出错：{}'.format(proxy, repr(e)))
 
@@ -51,14 +55,15 @@ class Tester(object):
         try:
             count = self.redis.get_count()
             logger.info('当前有 {} 个代理'.format(count))
-            for i in range(0, count, BATCH_TEST_SIZE):
+            for i in range(0, count, setting.BATCH_TEST_SIZE):
                 start = i
-                stop = min(i + BATCH_TEST_SIZE, count)
+                stop = min(i + setting.BATCH_TEST_SIZE, count)
                 logger.info('正在测试第 {}-{} 个代理'.format(start + 1, stop))
                 test_proxies = self.redis.get_batch(start, stop)
                 loop = asyncio.get_event_loop()
-                tasks = [self.test_single_proxy(proxy)
-                         for proxy in test_proxies]
+                tasks = [
+                    self.test_single_proxy(proxy) for proxy in test_proxies
+                ]
                 loop.run_until_complete(asyncio.wait(tasks))
                 sys.stdout.flush()
                 time.sleep(5)

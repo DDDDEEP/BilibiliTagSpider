@@ -21,7 +21,7 @@ def index():
 @app.route('/random')
 def get_proxy():
     """
-    Get a proxy
+    随机获取一个代理
     :return: 随机代理
     """
     conn = get_conn()
@@ -31,7 +31,7 @@ def get_proxy():
 @app.route('/count')
 def get_counts():
     """
-    Get the count of proxies
+    获取代理池的总数
     :return: 代理池总量
     """
     conn = get_conn()

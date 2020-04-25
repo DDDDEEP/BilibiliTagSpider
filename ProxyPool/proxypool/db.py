@@ -1,25 +1,31 @@
+import re
 import redis
 import logging
-from proxypool.error import PoolEmptyError
-from proxypool.setting import *
 from random import choice
-import re
+
+import proxypool.setting as setting
+from proxypool.error import PoolEmptyError
 
 logger = logging.getLogger('ProxyPool')
 
-# Redis操作封装类
-
 
 class RedisClient(object):
-    def __init__(self, host=REDIS_HOST, port=REDIS_PORT, password=REDIS_PASSWORD, proxy_key=REDIS_KEY):
+    """Redis封装类"""
+    def __init__(self,
+                 host=setting.REDIS_HOST,
+                 port=setting.REDIS_PORT,
+                 password=setting.REDIS_PASSWORD,
+                 proxy_key=setting.REDIS_KEY):
         """
         初始化
         :param host: Redis 地址
         :param port: Redis 端口
         :param password: Redis密码
         """
-        self.db = redis.StrictRedis(
-            host=host, port=port, password=password, decode_responses=True)
+        self.db = redis.StrictRedis(host=host,
+                                    port=port,
+                                    password=password,
+                                    decode_responses=True)
         self.proxy_key = proxy_key
 
     def add_proxy(self, proxy, score):
@@ -40,7 +46,8 @@ class RedisClient(object):
         随机获取有效代理，首先尝试获取最高分数代理，如果不存在，按照排名获取，否则异常
         :return: 随机代理
         """
-        result = self.db.zrangebyscore(self.proxy_key, MAX_SCORE, MAX_SCORE)
+        result = self.db.zrangebyscore(self.proxy_key, setting.MAX_SCORE,
+                                       setting.MAX_SCORE)
         if len(result):
             return choice(result)
         else:
@@ -57,7 +64,7 @@ class RedisClient(object):
         :return: 修改后的代理分数
         """
         score = self.db.zscore(self.proxy_key, proxy)
-        if score and score > MIN_SCORE:
+        if score and score > setting.MIN_SCORE:
             return self.db.zincrby(self.proxy_key, -1, proxy)
         else:
             logger.info('代理 {} 减分，当前分数：{}，移除'.format(proxy, score))
@@ -77,8 +84,8 @@ class RedisClient(object):
         :param proxy: 代理
         :return: 设置结果
         """
-        logger.info('代理 {} 可用，设置为 {}'.format(proxy, MAX_SCORE))
-        return self.db.zadd(self.proxy_key, {proxy: MAX_SCORE})
+        logger.info('代理 {} 可用，设置为 {}'.format(proxy, setting.MAX_SCORE))
+        return self.db.zadd(self.proxy_key, {proxy: setting.MAX_SCORE})
 
     def get_count(self):
         """
@@ -92,7 +99,8 @@ class RedisClient(object):
         获取全部代理
         :return: 全部代理列表
         """
-        return self.db.zrangebyscore(self.proxy_key, MIN_SCORE, MAX_SCORE)
+        return self.db.zrangebyscore(self.proxy_key, setting.MIN_SCORE,
+                                     setting.MAX_SCORE)
 
     def get_batch(self, start, stop):
         """

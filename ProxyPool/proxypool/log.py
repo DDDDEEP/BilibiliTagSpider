@@ -1,5 +1,6 @@
 import logging
-from proxypool.setting import LOG_LEVEL, LOG_STDOUT
+
+from proxypool.setting import LOG_LEVEL
 
 # 设置日志对象
 logger = logging.getLogger('ProxyPool')
