@@ -26,10 +26,11 @@ class Tester(object):
             try:
                 if isinstance(proxy, bytes):
                     proxy = proxy.decode('utf-8')
-                real_proxy = 'http://' + proxy
+                if not proxy.startswith('http://'):
+                    proxy = 'http://' + proxy
                 async with session.get(setting.TEST_URL,
                                        headers=setting.REQUEST_HEADERS,
-                                       proxy=real_proxy,
+                                       proxy=proxy,
                                        timeout=5,
                                        allow_redirects=False) as response:
                     if response.status in setting.VALID_STATUS_CODES:

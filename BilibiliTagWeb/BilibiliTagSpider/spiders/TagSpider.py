@@ -22,10 +22,10 @@ class TagSpider(Spider):
                  *args,
                  **kwargs):
         super(TagSpider, self).__init__(*args, **kwargs)
-        self.newlist_url = "https://api.bilibili.com/x/web-interface/newlist?rid={type_id}&type=0&pn={page}&ps={per_page}"
-        self.video_url = "https://www.bilibili.com/video/av{aid}"
-        self.stat_url = "https://api.bilibili.com/x/web-interface/archive/stat?aid={aid}"
-        self.hotlist_url = "https://s.search.bilibili.com/cate/search?main_ver=v3&search_type=video&view_type=hot_rank&order=pubdate&copy_right=-1&"
+        self.newlist_url = "http://api.bilibili.com/x/web-interface/newlist?rid={type_id}&type=0&pn={page}&ps={per_page}"
+        self.video_url = "http://www.bilibili.com/video/av{aid}"
+        self.stat_url = "http://api.bilibili.com/x/web-interface/archive/stat?aid={aid}"
+        self.hotlist_url = "http://s.search.bilibili.com/cate/search?main_ver=v3&search_type=video&view_type=hot_rank&order=pubdate&copy_right=-1&"
         self.hotlist_url += "cate_id={type_id}&page={page}&pagesize={per_page}&time_from={time_from}&time_to={time_to}"
         self.settings = get_project_settings()
 

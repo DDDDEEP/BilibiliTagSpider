@@ -16,14 +16,14 @@ REDIS_PASSWORD = 'root'
 REDIS_KEY = 'bilitag_proxy'
 TEST_REDIS_KEY = REDIS_KEY + '_test'
 
-MAX_SCORE = 100  # 代理最高分数
+MAX_SCORE = 5  # 代理最高分数
 MIN_SCORE = 0  # 代理最低分数
-INITIAL_SCORE = 10  # 代理起始分数
-POOL_UPPER_THRESHOLD = 50000  # 代理池数量上限
+INITIAL_SCORE = 2  # 代理起始分数
+POOL_UPPER_THRESHOLD = 100  # 代理池数量上限
 VALID_STATUS_CODES = [200, 302]  # 代理可用返回值
 
-TESTER_CYCLE = 60  # 检查代理可用性的周期，单位为秒
-GETTER_CYCLE = 300  # 获取代理的周期，单位为秒
+TESTER_CYCLE = 5  # 检查代理可用性的周期，单位为秒
+GETTER_CYCLE = 5  # 获取代理的周期，单位为秒
 BATCH_TEST_SIZE = 10  # 每批次测试代理可用性的数量
 TEST_URL = 'https://www.bilibili.com'  # 测试目标url
 
@@ -43,6 +43,6 @@ REQUEST_HEADERS = {
 }
 
 # 自定义配置
-CUSTOM_PROXY_URL = 'example.com'
+CUSTOM_PROXY_URL = 'http://example.com'
 PROXY_USER = 'root'
 PROXY_PASSWORD = 'root'

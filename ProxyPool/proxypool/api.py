@@ -21,7 +21,7 @@ def index():
 @app.route('/random')
 def get_proxy():
     """
-    随机获取一个代理
+    随机获取一个权值高的代理
     :return: 随机代理
     """
     conn = get_conn()

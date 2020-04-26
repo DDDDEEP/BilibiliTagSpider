@@ -4,6 +4,7 @@
 import io
 import sys
 
+import proxypool.log
 from proxypool.scheduler import Scheduler
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 

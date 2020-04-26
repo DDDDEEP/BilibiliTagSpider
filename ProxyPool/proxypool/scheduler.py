@@ -18,7 +18,6 @@ class Scheduler():
         """
         tester = Tester()
         while True:
-            logger.info('测试器开始运行')
             tester.run()
             time.sleep(cycle)
 
@@ -28,7 +27,6 @@ class Scheduler():
         """
         getter = Getter()
         while True:
-            logger.info('开始抓取代理')
             getter.run()
             time.sleep(cycle)
 

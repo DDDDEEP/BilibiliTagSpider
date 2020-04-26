@@ -35,7 +35,7 @@ class RedisClient(object):
         :param score: 分数
         :return: 添加结果
         """
-        if not re.match('\d+\.\d+\.\d+\.\d+\:\d+', proxy):
+        if not re.search('\d+\.\d+\.\d+\.\d+\:\d+', proxy):
             logger.info('代理 {} 不符合规范'.format(proxy))
             return
         if not self.db.zscore(self.proxy_key, proxy):

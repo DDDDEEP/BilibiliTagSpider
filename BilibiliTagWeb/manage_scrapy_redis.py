@@ -26,7 +26,7 @@ time_to = int(args.time_to)
 time_start = time.time()
 
 # 请求热度排行api，获取分页数据量
-hotlist_url = "https://s.search.bilibili.com/cate/search?main_ver=v3&search_type=video&view_type=hot_rank&order=pubdate&copy_right=-1&"
+hotlist_url = "http://s.search.bilibili.com/cate/search?main_ver=v3&search_type=video&view_type=hot_rank&order=pubdate&copy_right=-1&"
 hotlist_url += "cate_id={type_id}&page={page}&pagesize={per_page}&time_from={time_from}&time_to={time_to}"
 response = requests.get(
     hotlist_url.format(type_id=type_id,

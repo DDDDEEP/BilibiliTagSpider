@@ -123,11 +123,15 @@ class ProxyMiddleware():
             return None
 
     def process_request(self, request, spider):
-        if request.meta.get('retry_times', 0):
-            proxy = self.get_random_proxy()
-            if proxy:
-                self.logger.info('使用代理：{}'.format(proxy))
-                request.meta['proxy'] = proxy
+        proxy = self.get_random_proxy()
+        if proxy:
+            request.meta['proxy'] = proxy
+            spider.logger.info(f'使用代理：{request.meta["proxy"]}')
+        else:
+            request.meta['proxy'] = ''
+
+    def process_exception(self, request, exception, spider):
+        spider.logger.info(f'代理无效：{request.meta["proxy"]}')
 
     @classmethod
     def from_crawler(cls, crawler):

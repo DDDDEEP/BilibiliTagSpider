@@ -93,23 +93,6 @@ DATABASES = {
     }
 }
 
-# from mongoengine import connect
-# MONGO_DATABASES = {
-#     'db': 'bilibili_tag',
-#     'host': '127.0.0.1',
-#     'port': 27017,
-#     'username': 'root',
-#     'password': 'root'
-# }
-# # 连接mongodb数据库
-# connect(db=MONGO_DATABASES['db'],
-#         host=MONGO_DATABASES['host'],
-#         port=MONGO_DATABASES['port'],
-#         username=MONGO_DATABASES['username'],
-#         password=MONGO_DATABASES['password'],
-#         authentication_source='admin'
-#         )
-
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
 
@@ -178,8 +161,9 @@ INTERNAL_IPS = [
 ]
 
 # Celery 设置
+REDIS_HOST = '127.0.0.1'
 REDIS_PASSWORD = 'root'
-CELERY_BROKER_URL = "redis://:{password}@localhost:6379/0".format(password=REDIS_PASSWORD)
+CELERY_BROKER_URL = "redis://:{password}@{host}:6379/0".format(password=REDIS_PASSWORD, host=REDIS_HOST)
 CELERY_WORKER_MAX_TASKS_PER_CHILD = 1  # 避免Scrapy的ReactorAlreadyRunning报错
 CELERY_RESULT_BACKEND = CELERY_BROKER_URL
 CELERY_ACCEPT_CONTENT = ['application/json', ]

@@ -1,13 +1,14 @@
 import math
 import logging
 import pprint
+import time
 
 from scrapy import signals
 from scrapy.exceptions import NotConfigured
 from scrapy.utils.project import get_project_settings
 from twisted.internet.task import LoopingCall
 
-from helpers import ScrapyField
+from helpers import ScrapyField, print_time
 from .items import VideoItem
 
 logger = logging.getLogger(__name__)
@@ -18,6 +19,7 @@ class SpiderProgressLogging(object):
     周期性打印爬虫总进度
     """
     def __init__(self, stats):
+        self.start_time = time.time()
         self.stats = stats
         self.settings = get_project_settings()
 
@@ -43,9 +45,11 @@ class SpiderProgressLogging(object):
 
     def spider_opened(self, spider):
         logger.info("爬虫启动：{}".format(spider.name))
+        self.start_time = time.time()
 
     def spider_closed(self, spider):
         logger.info("爬虫关闭：{}".format(spider.name))
+        print_time("爬取所用时间：", time.time() - self.start_time)
 
     def item_scraped(self, item, spider):
         if isinstance(item, VideoItem):
@@ -57,9 +61,9 @@ class SpiderProgressLogging(object):
                 total_seconds = math.ceil(
                     (spider.items_total - items_scraped) / self.
                     settings['PER_PAGE']) * self.settings['DOWNLOAD_DELAY']
-                hours = total_seconds // 3600
-                minutes = total_seconds % 3600 // 60
-                seconds = total_seconds % 3600 % 60
+                hours = int(total_seconds // 3600)
+                minutes = int(total_seconds % 3600 // 60)
+                seconds = int(total_seconds % 3600 % 60)
                 logger.info("总爬取进度：({}/{})，{:.1f}%，预计剩余时间 {}时{}分{}秒".format(
                     items_scraped,
                     spider.items_total,
