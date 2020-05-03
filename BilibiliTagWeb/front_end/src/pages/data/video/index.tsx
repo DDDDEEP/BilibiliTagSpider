@@ -115,7 +115,7 @@ const TableList: React.FC<{}> = () => {
             }
             if (params.pubdate) {
               params.pubdate_min = momentToTimestamp(moment(params.pubdate[0]).startOf('day'));
-              params.pubdate_max = momentToTimestamp(moment(params.pubdate[1]).startOf('day'));
+              params.pubdate_max = momentToTimestamp(moment(params.pubdate[1]).endOf('day'));
               delete params.pubdate;
             }
             const data = await getVideoList({

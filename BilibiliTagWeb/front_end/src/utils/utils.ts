@@ -106,8 +106,8 @@ export const momentToTimestamp = (moment: moment.Moment) => {
 }
 
 export const secondsToStr = (seconds: number) => {
-  const hour = Math.ceil(seconds / 3600);
-  const minute = Math.ceil(seconds % 3600 / 60);
-  const second = Math.ceil(seconds % 3600 % 60);
+  const hour = Math.floor(seconds / 3600);
+  const minute = Math.floor(seconds % 3600 / 60);
+  const second = Math.floor(seconds % 3600 % 60);
   return `${hour}时${monthFixZero(minute)}分${monthFixZero(second)}秒`;
 }

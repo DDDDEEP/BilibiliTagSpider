@@ -5,7 +5,6 @@ import argparse
 
 from BilibiliTagHandler.tag_handler import TagHandler
 from BilibiliTagWeb import settings
-from helpers import date_to_timestamp
 
 # 命令行参数
 #     - type_id   -- 分区id
@@ -18,11 +17,12 @@ parser.add_argument('--time-to', type=str, default='20100101')
 args = parser.parse_args()
 
 type_id = args.type_id
-time_from = date_to_timestamp(args.time_from)
-time_to_end = date_to_timestamp(args.time_to) + 24 * 3600
+time_from = args.time_from
+time_to = args.time_to
 
 # 连接mongo并处理标签
 mongo_settings = settings.DATABASES['default']
 handler = TagHandler(mongo_settings['HOST'], mongo_settings['NAME'],
                      mongo_settings['USER'], mongo_settings['PASSWORD'])
-handler.start(type_id=type_id, time_from=time_from, time_to_end=time_to_end)
+handler.create_test_rank_video()
+handler.start(type_id=type_id, time_from=time_from, time_to=time_to)

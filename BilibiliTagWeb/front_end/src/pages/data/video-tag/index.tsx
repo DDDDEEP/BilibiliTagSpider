@@ -38,20 +38,34 @@ const TableList: React.FC<{}> = () => {
       title: '视频列表',
       dataIndex: 'aids',
       hideInSearch: true,
-      render: (_, record: VideoTagTableListItem) => (
-        <>
-          {JSON.parse(record.aids).map((aid: number, index: number) => {
-            return (
-              <label key={aid}>
-                <a href={'https://www.bilibili.com/av' + aid}>{aid}</a>
-                {index % 5 == 4 &&
-                  <br />
-                }
-              </label>
-            )
-          })}
-        </>
-      ),
+      render: (_, record: VideoTagTableListItem) => {
+        const aids: number[] = JSON.parse(record.aids)
+        return (
+          <>
+            {aids.map((aid: number, index: number) => {
+              if (index >= 10) {
+                return
+              }
+              return (
+                <label key={aid}>
+                  {index == 9 ? (
+                    <a>......</a>
+                  ) : (
+                    <a href={'https://www.bilibili.com/av' + aid}>{aid}</a>
+                  )}
+                  {index == 4 &&
+                    <br />
+                  }
+                </label>
+              )
+            })}
+            <br />
+            <label style={{ float: 'right' }}>
+              共 {aids.length} 个
+            </label>
+          </>
+        )
+      },
       width: 180,
     },
     {
@@ -224,7 +238,7 @@ const TableList: React.FC<{}> = () => {
             }
             if (params.pubdate) {
               params.pubdate_min = momentToTimestamp(moment(params.pubdate[0]).startOf('day'));
-              params.pubdate_max = momentToTimestamp(moment(params.pubdate[1]).startOf('day'));
+              params.pubdate_max = momentToTimestamp(moment(params.pubdate[1]).endOf('day'));
               delete params.pubdate;
             }
             const data = await getVideoTagList({

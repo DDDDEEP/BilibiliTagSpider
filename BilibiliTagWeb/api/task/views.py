@@ -65,6 +65,9 @@ def start_spider(request, *args, **kwargs):
     time_from = int(request.POST.get('from'))
     time_to = int(request.POST.get('to'))
 
+    if time_to - time_from >= 300:
+        return JsonResponse(response_json(errmsg='受接口限制，时间区间应在1个月以内'))
+
     try:
         task = task_spider.delay(type_id, time_from, time_to)
     except AlreadyQueued:

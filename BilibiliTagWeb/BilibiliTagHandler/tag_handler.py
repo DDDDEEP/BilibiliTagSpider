@@ -148,7 +148,8 @@ class TagHandler:
             # 更新对应记录的数据均值
             update_json = {}
             for stat_code, stat_name in STAT_NAME.items():
-                update_json['avg_' + stat_name] = math.ceil(numpy.mean(stats[stat_name]))
+                update_json['avg_' + stat_name] = math.ceil(
+                    numpy.mean(stats[stat_name]))
             self._db['video_tag'].update_one({'_id': video_tag['_id']},
                                              {'$set': update_json})
 
@@ -220,9 +221,21 @@ class TagHandler:
                 'tid': tid,
                 'pubdate': pubdate,
                 'tag_id': document_tag['_id']
-            }, {'$addToSet': {
-                'aids': aid
-            }},
+            }, {
+                '$addToSet': {
+                    'aids': aid
+                },
+                '$setOnInsert': {
+                    'avg_stat_view': 0,
+                    'avg_stat_danmaku': 0,
+                    'avg_stat_reply': 0,
+                    'avg_stat_favorite': 0,
+                    'avg_stat_coin': 0,
+                    'avg_stat_share': 0,
+                    'avg_stat_like': 0,
+                    'avg_stat_dislike': 0,
+                }
+            },
             upsert=True)
 
     def get_tag_count_rank(self, type_id, time_from, time_to_end, count):
@@ -289,7 +302,7 @@ class TagHandler:
                     'sum_count': 1
                 }
             },
-        ])
+        ], allowDiskUse=True)
         return list(result)
 
     def get_tag_avg_stat_rank(self, type_id, time_from, time_to_end, count,
@@ -361,7 +374,7 @@ class TagHandler:
                 }
             },
             {
-                '$limit': 20
+                '$limit': count
             },
             {
                 '$lookup': {
@@ -386,5 +399,56 @@ class TagHandler:
                     }
                 }
             },
-        ])
+        ], allowDiskUse=True)
         return list(result)
+
+    def create_test_rank_video(self):
+        """
+        创建测试排序接口的视频数据
+
+        创建分区号17、投稿日期是2000-01-01的100个视频
+        第一个视频标签为“标签0”,第2个视频标签为“标签0,标签1”，如此类推
+        第一个视频的播放量是0，第一个视频的播放量是1，如此类推
+        """
+        timestamp = 946656000
+        tags = ''
+        for i in range(31):
+            if i == 0:
+                tags = f'标签{i}'
+            else:
+                tags += f',标签{i}'
+
+            self._db['videos'].update_one({
+                'aid': i,
+            }, {
+                '$setOnInsert': {
+                    'created_at': int(time.time()),
+                    'tid': 17,
+                    'pubdate': timestamp,
+                    'aid': i,
+                    'tags': tags,
+                },
+                '$set': {
+                    'updated_at': int(time.time()),
+                    'title': f'测试视频{i}',
+                    'duration': i,
+                    'stat_view': i,
+                    'stat_danmaku': i,
+                    'stat_reply': i,
+                    'stat_favorite': i,
+                    'stat_coin': i,
+                    'stat_share': i,
+                    'stat_like': i,
+                    'stat_dislike': i,
+                }
+            },
+                                          upsert=True)
+
+            self._db['records'].update_one({
+                'tid': 17,
+                'pubdate': timestamp,
+            }, {'$set': {
+                'status': RecordStatus.Crawled.value,
+            }},
+                                           upsert=True)
+            timestamp += 86400
