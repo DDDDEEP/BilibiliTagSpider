@@ -84,31 +84,7 @@ DATABASES = {
     #     'ENGINE': 'django.db.backends.sqlite3',
     #     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     # }
-    'default': {
-        'ENGINE': 'djongo',
-        'NAME': 'bilibili_tag',
-        'HOST': '127.0.0.1',
-        'USER': 'root',
-        'PASSWORD': 'root'
-    }
 }
-
-# from mongoengine import connect
-# MONGO_DATABASES = {
-#     'db': 'bilibili_tag',
-#     'host': '127.0.0.1',
-#     'port': 27017,
-#     'username': 'root',
-#     'password': 'root'
-# }
-# # 连接mongodb数据库
-# connect(db=MONGO_DATABASES['db'],
-#         host=MONGO_DATABASES['host'],
-#         port=MONGO_DATABASES['port'],
-#         username=MONGO_DATABASES['username'],
-#         password=MONGO_DATABASES['password'],
-#         authentication_source='admin'
-#         )
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
