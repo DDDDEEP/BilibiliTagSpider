@@ -15,16 +15,12 @@
 ## 截图
 
 ![任务界面](./img/task.jpg)
-<center>任务界面</center>
 
 ![数据界面](./img/videos.jpg)
-<center>视频数据界面</center>
 
 ![标签次数排行](./img/tag_count.jpg)
-<center>标签次数排行</center>
 
 ![标签平均排行](./img/tag_stat.jpg)
-<center>标签平均数据排行</center>
 
 ## 安装与配置
 
