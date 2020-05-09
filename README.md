@@ -107,7 +107,7 @@ REDIS_PORT = 6379
 REDIS_PASSWORD = 'root'
 ```
 
-如果需要使用代理池，则需要自定义`/BilibiliTagSpider/ProxyPool/proxypool/getter.py`中`Crawler`类的`crawl_`方法。
+如果需要使用代理池，则需要自定义 `/BilibiliTagSpider/ProxyPool/proxypool/getter.py` 中 `Crawler` 类的 `crawl_` 方法。
 
 如果不使用代理，可以关闭 Scrapy 对应的中间件为：
 ```python
@@ -166,7 +166,7 @@ npm install
 运行前端：
 ```bash
 # /BilibiliTagWeb/front_end
-npm run start: test
+npm run start:test
 ```
 
 此时即可访问前端页面。
