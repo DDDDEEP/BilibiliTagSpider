@@ -178,13 +178,13 @@ npm run start:test
 pipenv run scrapy crawl tag_spider -a type_id=17 -a time_from=20160101 -a time_to=20160101
 
 # 运行分布式初始化脚本
-run manage_scrapy_redis.py --type-id=17 --time-from=20160101 --time-to=20160101
+pipenv run python manage_scrapy_redis.py --type-id=17 --time-from=20160101 --time-to=20160101
 
 # 运行分布式爬虫
 pipenv run scrapy crawl tag_redis_spider -a type_id=17 -a time_from=20160101 -a time_to=20160101
 
 # 运行数据处理脚本
-run manage_handler.py --type-id=17 --time-from=20160101 --time-to=20160101
+pipenv run python manage_handler.py --type-id=17 --time-from=20160101 --time-to=20160101
 ```
 
 ## TODO：
